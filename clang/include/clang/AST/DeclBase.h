@@ -89,10 +89,8 @@ public:
   enum Kind {
 #define DECL(DERIVED, BASE) DERIVED,
 #define ABSTRACT_DECL(DECL)
-#define DECL_RANGE(BASE, START, END) \
-        first##BASE = START, last##BASE = END,
-#define LAST_DECL_RANGE(BASE, START, END) \
-        first##BASE = START, last##BASE = END
+#define DECL_RANGE(BASE, START, END) first##BASE = START, last##BASE = END,
+#define LAST_DECL_RANGE(BASE, START, END) first##BASE = START, last##BASE = END
 #include "clang/AST/DeclNodes.inc"
   };
 
@@ -114,7 +112,7 @@ public:
   /// Decl currently provides 15 bits of IDNS bits.
   enum IdentifierNamespace {
     /// Labels, declared with 'x:' and referenced with 'goto x'.
-    IDNS_Label               = 0x0001,
+    IDNS_Label = 0x0001,
 
     /// Tags, declared with 'struct foo;' and referenced with
     /// 'struct foo'.  All tags are also types.  This is what
@@ -122,63 +120,63 @@ public:
     /// This also contains names that conflict with tags in the
     /// same scope but that are otherwise ordinary names (non-type
     /// template parameters and indirect field declarations).
-    IDNS_Tag                 = 0x0002,
+    IDNS_Tag = 0x0002,
 
     /// Types, declared with 'struct foo', typedefs, etc.
     /// This is what elaborated-type-specifiers look for in C++,
     /// but note that it's ill-formed to find a non-tag.
-    IDNS_Type                = 0x0004,
+    IDNS_Type = 0x0004,
 
     /// Members, declared with object declarations within tag
     /// definitions.  In C, these can only be found by "qualified"
     /// lookup in member expressions.  In C++, they're found by
     /// normal lookup.
-    IDNS_Member              = 0x0008,
+    IDNS_Member = 0x0008,
 
     /// Namespaces, declared with 'namespace foo {}'.
     /// Lookup for nested-name-specifiers find these.
-    IDNS_Namespace           = 0x0010,
+    IDNS_Namespace = 0x0010,
 
     /// Ordinary names.  In C, everything that's not a label, tag,
     /// member, or function-local extern ends up here.
-    IDNS_Ordinary            = 0x0020,
+    IDNS_Ordinary = 0x0020,
 
     /// Objective C \@protocol.
-    IDNS_ObjCProtocol        = 0x0040,
+    IDNS_ObjCProtocol = 0x0040,
 
     /// This declaration is a friend function.  A friend function
     /// declaration is always in this namespace but may also be in
     /// IDNS_Ordinary if it was previously declared.
-    IDNS_OrdinaryFriend      = 0x0080,
+    IDNS_OrdinaryFriend = 0x0080,
 
     /// This declaration is a friend class.  A friend class
     /// declaration is always in this namespace but may also be in
     /// IDNS_Tag|IDNS_Type if it was previously declared.
-    IDNS_TagFriend           = 0x0100,
+    IDNS_TagFriend = 0x0100,
 
     /// This declaration is a using declaration.  A using declaration
     /// *introduces* a number of other declarations into the current
     /// scope, and those declarations use the IDNS of their targets,
     /// but the actual using declarations go in this namespace.
-    IDNS_Using               = 0x0200,
+    IDNS_Using = 0x0200,
 
     /// This declaration is a C++ operator declared in a non-class
     /// context.  All such operators are also in IDNS_Ordinary.
     /// C++ lexical operator lookup looks for these.
-    IDNS_NonMemberOperator   = 0x0400,
+    IDNS_NonMemberOperator = 0x0400,
 
     /// This declaration is a function-local extern declaration of a
     /// variable or function. This may also be IDNS_Ordinary if it
     /// has been declared outside any function. These act mostly like
     /// invisible friend declarations, but are also visible to unqualified
     /// lookup within the scope of the declaring function.
-    IDNS_LocalExtern         = 0x0800,
+    IDNS_LocalExtern = 0x0800,
 
     /// This declaration is an OpenMP user defined reduction construction.
-    IDNS_OMPReduction        = 0x1000,
+    IDNS_OMPReduction = 0x1000,
 
     /// This declaration is an OpenMP user defined mapper.
-    IDNS_OMPMapper           = 0x2000,
+    IDNS_OMPMapper = 0x2000,
   };
 
   /// ObjCDeclQualifier - 'Qualifiers' written next to the return and
@@ -269,18 +267,14 @@ private:
   ///   }
   ///   void A::f(); // SemanticDC == namespace 'A'
   ///                // LexicalDC == global namespace
-  llvm::PointerUnion<DeclContext*, MultipleDC*> DeclCtx;
+  llvm::PointerUnion<DeclContext *, MultipleDC *> DeclCtx;
 
-  bool isInSemaDC() const { return DeclCtx.is<DeclContext*>(); }
-  bool isOutOfSemaDC() const { return DeclCtx.is<MultipleDC*>(); }
+  bool isInSemaDC() const { return DeclCtx.is<DeclContext *>(); }
+  bool isOutOfSemaDC() const { return DeclCtx.is<MultipleDC *>(); }
 
-  MultipleDC *getMultipleDC() const {
-    return DeclCtx.get<MultipleDC*>();
-  }
+  MultipleDC *getMultipleDC() const { return DeclCtx.get<MultipleDC *>(); }
 
-  DeclContext *getSemanticDC() const {
-    return DeclCtx.get<DeclContext*>();
-  }
+  DeclContext *getSemanticDC() const { return DeclCtx.get<DeclContext *>(); }
 
   /// Loc - The location of this decl.
   SourceLocation Loc;
@@ -291,7 +285,7 @@ private:
 
   /// InvalidDecl - This indicates a semantic error occurred.
   LLVM_PREFERRED_TYPE(bool)
-  unsigned InvalidDecl :  1;
+  unsigned InvalidDecl : 1;
 
   /// HasAttrs - This indicates whether the decl has attributes or not.
   LLVM_PREFERRED_TYPE(bool)
@@ -331,7 +325,7 @@ protected:
   friend class CXXClassMemberWrapper;
   friend class LinkageComputer;
   friend class RecordDecl;
-  template<typename decl_type> friend class Redeclarable;
+  template <typename decl_type> friend class Redeclarable;
 
   /// Access - Used by C++ decls for the access specifier.
   // NOTE: VC++ treats enums as signed, avoid using the AccessSpecifier enum
@@ -386,10 +380,10 @@ private:
 
 public:
   Decl() = delete;
-  Decl(const Decl&) = delete;
+  Decl(const Decl &) = delete;
   Decl(Decl &&) = delete;
-  Decl &operator=(const Decl&) = delete;
-  Decl &operator=(Decl&&) = delete;
+  Decl &operator=(const Decl &) = delete;
+  Decl &operator=(Decl &&) = delete;
 
 protected:
   Decl(Kind DK, DeclContext *DC, SourceLocation L)
@@ -399,7 +393,8 @@ protected:
         TopLevelDeclInObjCContainer(false), Access(AS_none), FromASTFile(0),
         IdentifierNamespace(getIdentifierNamespaceForKind(DK)),
         CacheValidAndLinkage(llvm::to_underlying(Linkage::Invalid)) {
-    if (StatisticsEnabled) add(DK);
+    if (StatisticsEnabled)
+      add(DK);
   }
 
   Decl(Kind DK, EmptyShell Empty)
@@ -408,7 +403,8 @@ protected:
         Access(AS_none), FromASTFile(0),
         IdentifierNamespace(getIdentifierNamespaceForKind(DK)),
         CacheValidAndLinkage(llvm::to_underlying(Linkage::Invalid)) {
-    if (StatisticsEnabled) add(DK);
+    if (StatisticsEnabled)
+      add(DK);
   }
 
   virtual ~Decl();
@@ -424,9 +420,7 @@ protected:
     CacheValidAndLinkage = llvm::to_underlying(L);
   }
 
-  bool hasCachedLinkage() const {
-    return CacheValidAndLinkage;
-  }
+  bool hasCachedLinkage() const { return CacheValidAndLinkage; }
 
 public:
   /// Source range that this declaration covers.
@@ -449,7 +443,9 @@ public:
   const char *getDeclKindName() const;
 
   Decl *getNextDeclInContext() { return NextInContextAndBits.getPointer(); }
-  const Decl *getNextDeclInContext() const {return NextInContextAndBits.getPointer();}
+  const Decl *getNextDeclInContext() const {
+    return NextInContextAndBits.getPointer();
+  }
 
   DeclContext *getDeclContext() {
     if (isInSemaDC())
@@ -457,7 +453,7 @@ public:
     return getMultipleDC()->SemanticDC;
   }
   const DeclContext *getDeclContext() const {
-    return const_cast<Decl*>(this)->getDeclContext();
+    return const_cast<Decl *>(this)->getDeclContext();
   }
 
   /// Return the non transparent context.
@@ -475,12 +471,12 @@ public:
   /// A declaration may be its own non-closure context.
   Decl *getNonClosureContext();
   const Decl *getNonClosureContext() const {
-    return const_cast<Decl*>(this)->getNonClosureContext();
+    return const_cast<Decl *>(this)->getNonClosureContext();
   }
 
   TranslationUnitDecl *getTranslationUnitDecl();
   const TranslationUnitDecl *getTranslationUnitDecl() const {
-    return const_cast<Decl*>(this)->getTranslationUnitDecl();
+    return const_cast<Decl *>(this)->getTranslationUnitDecl();
   }
 
   bool isInAnonymousNamespace() const;
@@ -517,18 +513,16 @@ public:
 
   /// Retrieve the access specifier for this declaration, even though
   /// it may not yet have been properly set.
-  AccessSpecifier getAccessUnsafe() const {
-    return AccessSpecifier(Access);
-  }
+  AccessSpecifier getAccessUnsafe() const { return AccessSpecifier(Access); }
 
   bool hasAttrs() const { return HasAttrs; }
 
-  void setAttrs(const AttrVec& Attrs) {
+  void setAttrs(const AttrVec &Attrs) {
     return setAttrsImpl(Attrs, getASTContext());
   }
 
   AttrVec &getAttrs() {
-    return const_cast<AttrVec&>(const_cast<const Decl*>(this)->getAttrs());
+    return const_cast<AttrVec &>(const_cast<const Decl *>(this)->getAttrs());
   }
 
   const AttrVec &getAttrs() const;
@@ -538,9 +532,7 @@ public:
   using attr_iterator = AttrVec::const_iterator;
   using attr_range = llvm::iterator_range<attr_iterator>;
 
-  attr_range attrs() const {
-    return attr_range(attr_begin(), attr_end());
-  }
+  attr_range attrs() const { return attr_range(attr_begin(), attr_end()); }
 
   attr_iterator attr_begin() const {
     return hasAttrs() ? getAttrs().begin() : nullptr;
@@ -550,7 +542,8 @@ public:
   }
 
   template <typename... Ts> void dropAttrs() {
-    if (!HasAttrs) return;
+    if (!HasAttrs)
+      return;
 
     AttrVec &Vec = getAttrs();
     llvm::erase_if(Vec, [](Attr *A) { return isa<Ts...>(A); });
@@ -566,21 +559,19 @@ public:
     return llvm::make_range(specific_attr_begin<T>(), specific_attr_end<T>());
   }
 
-  template <typename T>
-  specific_attr_iterator<T> specific_attr_begin() const {
+  template <typename T> specific_attr_iterator<T> specific_attr_begin() const {
     return specific_attr_iterator<T>(attr_begin());
   }
 
-  template <typename T>
-  specific_attr_iterator<T> specific_attr_end() const {
+  template <typename T> specific_attr_iterator<T> specific_attr_end() const {
     return specific_attr_iterator<T>(attr_end());
   }
 
-  template<typename T> T *getAttr() const {
+  template <typename T> T *getAttr() const {
     return hasAttrs() ? getSpecificAttr<T>(getAttrs()) : nullptr;
   }
 
-  template<typename T> bool hasAttr() const {
+  template <typename T> bool hasAttr() const {
     return hasAttrs() && hasSpecificAttr<T>(getAttrs());
   }
 
@@ -591,7 +582,7 @@ public:
   /// setInvalidDecl - Indicates the Decl had a semantic error. This
   /// allows for graceful error recovery.
   void setInvalidDecl(bool Invalid = true);
-  bool isInvalidDecl() const { return (bool) InvalidDecl; }
+  bool isInvalidDecl() const { return (bool)InvalidDecl; }
 
   /// isImplicit - Indicates whether the declaration was implicitly
   /// generated by the implementation. If false, this declaration
@@ -705,9 +696,7 @@ public:
   /// Set the FromASTFile flag. This indicates that this declaration
   /// was deserialized and not parsed from source code and enables
   /// features such as module ownership information.
-  void setFromASTFile() {
-    FromASTFile = true;
-  }
+  void setFromASTFile() { FromASTFile = true; }
 
   /// Set the owning module ID.  This may only be called for
   /// deserialized Decls.
@@ -872,9 +861,7 @@ public:
     NextInContextAndBits.setInt(MOK);
   }
 
-  unsigned getIdentifierNamespace() const {
-    return IdentifierNamespace;
-  }
+  unsigned getIdentifierNamespace() const { return IdentifierNamespace; }
 
   bool isInIdentifierNamespace(unsigned NS) const {
     return getIdentifierNamespace() & NS;
@@ -907,7 +894,7 @@ public:
     return getMultipleDC()->LexicalDC;
   }
   const DeclContext *getLexicalDeclContext() const {
-    return const_cast<Decl*>(this)->getLexicalDeclContext();
+    return const_cast<Decl *>(this)->getLexicalDeclContext();
   }
 
   /// Determine whether this declaration is declared out of line (outside its
@@ -963,7 +950,7 @@ public:
   /// Retrieves the "canonical" declaration of the given declaration.
   virtual Decl *getCanonicalDecl() { return this; }
   const Decl *getCanonicalDecl() const {
-    return const_cast<Decl*>(this)->getCanonicalDecl();
+    return const_cast<Decl *>(this)->getCanonicalDecl();
   }
 
   /// Whether this particular Decl is a canonical one.
@@ -1004,7 +991,7 @@ public:
     reference operator*() const { return Current; }
     value_type operator->() const { return Current; }
 
-    redecl_iterator& operator++() {
+    redecl_iterator &operator++() {
       assert(Current && "Advancing while iterator has reached end");
       // Get either previous decl or latest decl.
       Decl *Next = Current->getNextRedeclarationImpl();
@@ -1053,9 +1040,7 @@ public:
   }
 
   /// True if this is the first declaration in its redeclaration chain.
-  bool isFirstDecl() const {
-    return getPreviousDecl() == nullptr;
-  }
+  bool isFirstDecl() const { return getPreviousDecl() == nullptr; }
 
   /// Retrieve the most recent declaration that declares the same entity
   /// as this declaration (which may be this declaration).
@@ -1070,7 +1055,7 @@ public:
   /// getBody - If this Decl represents a declaration for a body of code,
   ///  such as a function or method definition, this method returns the
   ///  top-level Stmt* of that body.  Otherwise this method returns null.
-  virtual Stmt* getBody() const { return nullptr; }
+  virtual Stmt *getBody() const { return nullptr; }
 
   /// Returns true if this \c Decl represents a declaration for a body of
   /// code, such as a function or method definition.
@@ -1165,13 +1150,13 @@ public:
   /// same entity may not (and probably don't) share this property.
   void setObjectOfFriendDecl(bool PerformFriendInjection = false) {
     unsigned OldNS = IdentifierNamespace;
-    assert((OldNS & (IDNS_Tag | IDNS_Ordinary |
-                     IDNS_TagFriend | IDNS_OrdinaryFriend |
-                     IDNS_LocalExtern | IDNS_NonMemberOperator)) &&
+    assert((OldNS &
+            (IDNS_Tag | IDNS_Ordinary | IDNS_TagFriend | IDNS_OrdinaryFriend |
+             IDNS_LocalExtern | IDNS_NonMemberOperator)) &&
            "namespace includes neither ordinary nor tag");
-    assert(!(OldNS & ~(IDNS_Tag | IDNS_Ordinary | IDNS_Type |
-                       IDNS_TagFriend | IDNS_OrdinaryFriend |
-                       IDNS_LocalExtern | IDNS_NonMemberOperator)) &&
+    assert(!(OldNS & ~(IDNS_Tag | IDNS_Ordinary | IDNS_Type | IDNS_TagFriend |
+                       IDNS_OrdinaryFriend | IDNS_LocalExtern |
+                       IDNS_NonMemberOperator)) &&
            "namespace includes other than ordinary or tag");
 
     Decl *Prev = getPreviousDecl();
@@ -1184,8 +1169,8 @@ public:
         IdentifierNamespace |= IDNS_Tag | IDNS_Type;
     }
 
-    if (OldNS & (IDNS_Ordinary | IDNS_OrdinaryFriend |
-                 IDNS_LocalExtern | IDNS_NonMemberOperator)) {
+    if (OldNS & (IDNS_Ordinary | IDNS_OrdinaryFriend | IDNS_LocalExtern |
+                 IDNS_NonMemberOperator)) {
       IdentifierNamespace |= IDNS_OrdinaryFriend;
       if (PerformFriendInjection ||
           (Prev && Prev->getIdentifierNamespace() & IDNS_Ordinary))
@@ -1212,7 +1197,8 @@ public:
   FriendObjectKind getFriendObjectKind() const {
     unsigned mask =
         (IdentifierNamespace & (IDNS_TagFriend | IDNS_OrdinaryFriend));
-    if (!mask) return FOK_None;
+    if (!mask)
+      return FOK_None;
     return (IdentifierNamespace & (IDNS_Tag | IDNS_Ordinary) ? FOK_Declared
                                                              : FOK_Undeclared);
   }
@@ -1233,8 +1219,8 @@ public:
              bool PrintInstantiation = false) const;
   void print(raw_ostream &Out, const PrintingPolicy &Policy,
              unsigned Indentation = 0, bool PrintInstantiation = false) const;
-  static void printGroup(Decl** Begin, unsigned NumDecls,
-                         raw_ostream &Out, const PrintingPolicy &Policy,
+  static void printGroup(Decl **Begin, unsigned NumDecls, raw_ostream &Out,
+                         const PrintingPolicy &Policy,
                          unsigned Indentation = 0);
 
   // Debuggers don't usually respect default arguments.
@@ -1259,7 +1245,7 @@ public:
   bool isFunctionPointerType() const;
 
 private:
-  void setAttrsImpl(const AttrVec& Attrs, ASTContext &Ctx);
+  void setAttrsImpl(const AttrVec &Attrs, ASTContext &Ctx);
   void setDeclContextsImpl(DeclContext *SemaDC, DeclContext *LexicalDC,
                            ASTContext &Ctx);
 
@@ -1287,8 +1273,8 @@ class PrettyStackTraceDecl : public llvm::PrettyStackTraceEntry {
   const char *Message;
 
 public:
-  PrettyStackTraceDecl(const Decl *theDecl, SourceLocation L,
-                       SourceManager &sm, const char *Msg)
+  PrettyStackTraceDecl(const Decl *theDecl, SourceLocation L, SourceManager &sm,
+                       const char *Msg)
       : TheDecl(theDecl), Loc(L), SM(sm), Message(Msg) {}
 
   void print(raw_ostream &OS) const override;
@@ -1298,31 +1284,33 @@ public:
 // Required to determine the layout of the PointerUnion<NamedDecl*> before
 // seeing the NamedDecl definition being first used in DeclListNode::operator*.
 namespace llvm {
-  template <> struct PointerLikeTypeTraits<::clang::NamedDecl *> {
-    static inline void *getAsVoidPointer(::clang::NamedDecl *P) { return P; }
-    static inline ::clang::NamedDecl *getFromVoidPointer(void *P) {
-      return static_cast<::clang::NamedDecl *>(P);
-    }
-    static constexpr int NumLowBitsAvailable = 3;
-  };
-}
+template <> struct PointerLikeTypeTraits<::clang::NamedDecl *> {
+  static inline void *getAsVoidPointer(::clang::NamedDecl *P) { return P; }
+  static inline ::clang::NamedDecl *getFromVoidPointer(void *P) {
+    return static_cast<::clang::NamedDecl *>(P);
+  }
+  static constexpr int NumLowBitsAvailable = 3;
+};
+} // namespace llvm
 
 namespace clang {
 /// A list storing NamedDecls in the lookup tables.
 class DeclListNode {
   friend class ASTContext; // allocate, deallocate nodes.
   friend class StoredDeclsList;
+
 public:
-  using Decls = llvm::PointerUnion<NamedDecl*, DeclListNode*>;
+  using Decls = llvm::PointerUnion<NamedDecl *, DeclListNode *>;
   class iterator {
     friend class DeclContextLookupResult;
     friend class StoredDeclsList;
 
     Decls Ptr;
-    iterator(Decls Node) : Ptr(Node) { }
+    iterator(Decls Node) : Ptr(Node) {}
+
   public:
     using difference_type = ptrdiff_t;
-    using value_type = NamedDecl*;
+    using value_type = NamedDecl *;
     using pointer = void;
     using reference = value_type;
     using iterator_category = std::forward_iterator_tag;
@@ -1331,17 +1319,17 @@ public:
 
     reference operator*() const {
       assert(Ptr && "dereferencing end() iterator");
-      if (DeclListNode *CurNode = Ptr.dyn_cast<DeclListNode*>())
+      if (DeclListNode *CurNode = Ptr.dyn_cast<DeclListNode *>())
         return CurNode->D;
-      return Ptr.get<NamedDecl*>();
+      return Ptr.get<NamedDecl *>();
     }
-    void operator->() const { } // Unsupported.
+    void operator->() const {} // Unsupported.
     bool operator==(const iterator &X) const { return Ptr == X.Ptr; }
     bool operator!=(const iterator &X) const { return Ptr != X.Ptr; }
     inline iterator &operator++() { // ++It
       assert(!Ptr.isNull() && "Advancing empty iterator");
 
-      if (DeclListNode *CurNode = Ptr.dyn_cast<DeclListNode*>())
+      if (DeclListNode *CurNode = Ptr.dyn_cast<DeclListNode *>())
         Ptr = CurNode->Rest;
       else
         Ptr = nullptr;
@@ -1355,6 +1343,7 @@ public:
     // Enables the pattern for (iterator I =..., E = I.end(); I != E; ++I)
     iterator end() { return iterator(); }
   };
+
 private:
   NamedDecl *D = nullptr;
   Decls Rest = nullptr;
@@ -1379,19 +1368,19 @@ public:
   iterator begin() { return iterator(Result); }
   iterator end() { return iterator(); }
   const_iterator begin() const {
-    return const_cast<DeclContextLookupResult*>(this)->begin();
+    return const_cast<DeclContextLookupResult *>(this)->begin();
   }
   const_iterator end() const { return iterator(); }
 
-  bool empty() const { return Result.isNull();  }
-  bool isSingleResult() const { return Result.dyn_cast<NamedDecl*>(); }
+  bool empty() const { return Result.isNull(); }
+  bool isSingleResult() const { return Result.dyn_cast<NamedDecl *>(); }
   reference front() const { return *begin(); }
 
   // Find the first declaration of the given type in the list. Note that this
   // is not in general the earliest-declared declaration, and should only be
   // used when it's not possible for there to be more than one match or where
   // it doesn't matter which one is found.
-  template<class T> T *find_first() const {
+  template <class T> T *find_first() const {
     for (auto *D : *this)
       if (T *Decl = dyn_cast<T>(D))
         return Decl;
@@ -1620,8 +1609,9 @@ class DeclContext {
     uint64_t : NumTagDeclBits;
 
     /// This is true if this struct ends with a flexible
-    /// array member (e.g. int X[]) or if this union contains a struct that does.
-    /// If so, this cannot be contained in arrays or other structs as a member.
+    /// array member (e.g. int X[]) or if this union contains a struct that
+    /// does. If so, this cannot be contained in arrays or other structs as a
+    /// member.
     LLVM_PREFERRED_TYPE(bool)
     uint64_t HasFlexibleArrayMember : 1;
 
@@ -2064,8 +2054,8 @@ protected:
   /// Build up a chain of declarations.
   ///
   /// \returns the first/last pair of declarations.
-  static std::pair<Decl *, Decl *>
-  BuildDeclChain(ArrayRef<Decl*> Decls, bool FieldsAlreadyLoaded);
+  static std::pair<Decl *, Decl *> BuildDeclChain(ArrayRef<Decl *> Decls,
+                                                  bool FieldsAlreadyLoaded);
 
   DeclContext(Decl::Kind K);
 
@@ -2083,11 +2073,9 @@ public:
   const char *getDeclKindName() const;
 
   /// getParent - Returns the containing DeclContext.
-  DeclContext *getParent() {
-    return cast<Decl>(this)->getDeclContext();
-  }
+  DeclContext *getParent() { return cast<Decl>(this)->getDeclContext(); }
   const DeclContext *getParent() const {
-    return const_cast<DeclContext*>(this)->getParent();
+    return const_cast<DeclContext *>(this)->getParent();
   }
 
   /// getLexicalParent - Returns the containing lexical DeclContext. May be
@@ -2103,13 +2091,13 @@ public:
     return cast<Decl>(this)->getLexicalDeclContext();
   }
   const DeclContext *getLexicalParent() const {
-    return const_cast<DeclContext*>(this)->getLexicalParent();
+    return const_cast<DeclContext *>(this)->getLexicalParent();
   }
 
   DeclContext *getLookupParent();
 
   const DeclContext *getLookupParent() const {
-    return const_cast<DeclContext*>(this)->getLookupParent();
+    return const_cast<DeclContext *>(this)->getLookupParent();
   }
 
   ASTContext &getParentASTContext() const {
@@ -2225,7 +2213,7 @@ public:
   /// a closure.  A context may be its own non-closure ancestor.
   Decl *getNonClosureAncestor();
   const Decl *getNonClosureAncestor() const {
-    return const_cast<DeclContext*>(this)->getNonClosureAncestor();
+    return const_cast<DeclContext *>(this)->getNonClosureAncestor();
   }
 
   // Retrieve the nearest context that is not a transparent context.
@@ -2242,7 +2230,7 @@ public:
   /// information needed to perform name lookup into this context.
   DeclContext *getPrimaryContext();
   const DeclContext *getPrimaryContext() const {
-    return const_cast<DeclContext*>(this)->getPrimaryContext();
+    return const_cast<DeclContext *>(this)->getPrimaryContext();
   }
 
   /// getRedeclContext - Retrieve the context in which an entity conflicts with
@@ -2319,7 +2307,7 @@ public:
     // This doesn't meet the iterator requirements, but it's convenient
     value_type operator->() const { return Current; }
 
-    decl_iterator& operator++() {
+    decl_iterator &operator++() {
       Current = Current->getNextDeclInContext();
       return *this;
     }
@@ -2362,8 +2350,7 @@ public:
   /// are of type SpecificDecl (or a class derived from it). This
   /// iterator is used, for example, to provide iteration over just
   /// the fields within a RecordDecl (with SpecificDecl = FieldDecl).
-  template<typename SpecificDecl>
-  class specific_decl_iterator {
+  template <typename SpecificDecl> class specific_decl_iterator {
     /// Current - The current, underlying declaration iterator, which
     /// will either be NULL or will point to a declaration of
     /// type SpecificDecl.
@@ -2406,7 +2393,7 @@ public:
     // This doesn't meet the iterator requirements, but it's convenient
     value_type operator->() const { return **this; }
 
-    specific_decl_iterator& operator++() {
+    specific_decl_iterator &operator++() {
       ++Current;
       SkipToNextDecl();
       return *this;
@@ -2418,13 +2405,13 @@ public:
       return tmp;
     }
 
-    friend bool operator==(const specific_decl_iterator& x,
-                           const specific_decl_iterator& y) {
+    friend bool operator==(const specific_decl_iterator &x,
+                           const specific_decl_iterator &y) {
       return x.Current == y.Current;
     }
 
-    friend bool operator!=(const specific_decl_iterator& x,
-                           const specific_decl_iterator& y) {
+    friend bool operator!=(const specific_decl_iterator &x,
+                           const specific_decl_iterator &y) {
       return x.Current != y.Current;
     }
   };
@@ -2438,7 +2425,7 @@ public:
   /// example, to provide access to the instance methods within an
   /// Objective-C interface (with SpecificDecl = ObjCMethodDecl and
   /// Acceptable = ObjCMethodDecl::isInstanceMethod).
-  template<typename SpecificDecl, bool (SpecificDecl::*Acceptable)() const>
+  template <typename SpecificDecl, bool (SpecificDecl::*Acceptable)() const>
   class filtered_decl_iterator {
     /// Current - The current, underlying declaration iterator, which
     /// will either be NULL or will point to a declaration of
@@ -2482,7 +2469,7 @@ public:
     value_type operator*() const { return cast<SpecificDecl>(*Current); }
     value_type operator->() const { return cast<SpecificDecl>(*Current); }
 
-    filtered_decl_iterator& operator++() {
+    filtered_decl_iterator &operator++() {
       ++Current;
       SkipToNextDecl();
       return *this;
@@ -2494,13 +2481,13 @@ public:
       return tmp;
     }
 
-    friend bool operator==(const filtered_decl_iterator& x,
-                           const filtered_decl_iterator& y) {
+    friend bool operator==(const filtered_decl_iterator &x,
+                           const filtered_decl_iterator &y) {
       return x.Current == y.Current;
     }
 
-    friend bool operator!=(const filtered_decl_iterator& x,
-                           const filtered_decl_iterator& y) {
+    friend bool operator!=(const filtered_decl_iterator &x,
+                           const filtered_decl_iterator &y) {
       return x.Current != y.Current;
     }
   };
@@ -2770,24 +2757,21 @@ template <class ToTy,
           bool IsKnownSubtype = ::std::is_base_of<DeclContext, ToTy>::value>
 struct cast_convert_decl_context {
   static const ToTy *doit(const DeclContext *Val) {
-    return static_cast<const ToTy*>(Decl::castFromDeclContext(Val));
+    return static_cast<const ToTy *>(Decl::castFromDeclContext(Val));
   }
 
   static ToTy *doit(DeclContext *Val) {
-    return static_cast<ToTy*>(Decl::castFromDeclContext(Val));
+    return static_cast<ToTy *>(Decl::castFromDeclContext(Val));
   }
 };
 
 // Specialization selected when ToTy is a known subclass of DeclContext.
-template <class ToTy>
-struct cast_convert_decl_context<ToTy, true> {
+template <class ToTy> struct cast_convert_decl_context<ToTy, true> {
   static const ToTy *doit(const DeclContext *Val) {
-    return static_cast<const ToTy*>(Val);
+    return static_cast<const ToTy *>(Val);
   }
 
-  static ToTy *doit(DeclContext *Val) {
-    return static_cast<ToTy*>(Val);
-  }
+  static ToTy *doit(DeclContext *Val) { return static_cast<ToTy *>(Val); }
 };
 
 } // namespace clang
@@ -2795,68 +2779,67 @@ struct cast_convert_decl_context<ToTy, true> {
 namespace llvm {
 
 /// isa<T>(DeclContext*)
-template <typename To>
-struct isa_impl<To, ::clang::DeclContext> {
+template <typename To> struct isa_impl<To, ::clang::DeclContext> {
   static bool doit(const ::clang::DeclContext &Val) {
     return To::classofKind(Val.getDeclKind());
   }
 };
 
 /// cast<T>(DeclContext*)
-template<class ToTy>
-struct cast_convert_val<ToTy,
-                        const ::clang::DeclContext,const ::clang::DeclContext> {
+template <class ToTy>
+struct cast_convert_val<ToTy, const ::clang::DeclContext,
+                        const ::clang::DeclContext> {
   static const ToTy &doit(const ::clang::DeclContext &Val) {
     return *::clang::cast_convert_decl_context<ToTy>::doit(&Val);
   }
 };
 
-template<class ToTy>
+template <class ToTy>
 struct cast_convert_val<ToTy, ::clang::DeclContext, ::clang::DeclContext> {
   static ToTy &doit(::clang::DeclContext &Val) {
     return *::clang::cast_convert_decl_context<ToTy>::doit(&Val);
   }
 };
 
-template<class ToTy>
-struct cast_convert_val<ToTy,
-                     const ::clang::DeclContext*, const ::clang::DeclContext*> {
+template <class ToTy>
+struct cast_convert_val<ToTy, const ::clang::DeclContext *,
+                        const ::clang::DeclContext *> {
   static const ToTy *doit(const ::clang::DeclContext *Val) {
     return ::clang::cast_convert_decl_context<ToTy>::doit(Val);
   }
 };
 
-template<class ToTy>
-struct cast_convert_val<ToTy, ::clang::DeclContext*, ::clang::DeclContext*> {
+template <class ToTy>
+struct cast_convert_val<ToTy, ::clang::DeclContext *, ::clang::DeclContext *> {
   static ToTy *doit(::clang::DeclContext *Val) {
     return ::clang::cast_convert_decl_context<ToTy>::doit(Val);
   }
 };
 
 /// Implement cast_convert_val for Decl -> DeclContext conversions.
-template<class FromTy>
-struct cast_convert_val< ::clang::DeclContext, FromTy, FromTy> {
+template <class FromTy>
+struct cast_convert_val<::clang::DeclContext, FromTy, FromTy> {
   static ::clang::DeclContext &doit(const FromTy &Val) {
     return *FromTy::castToDeclContext(&Val);
   }
 };
 
-template<class FromTy>
-struct cast_convert_val< ::clang::DeclContext, FromTy*, FromTy*> {
+template <class FromTy>
+struct cast_convert_val<::clang::DeclContext, FromTy *, FromTy *> {
   static ::clang::DeclContext *doit(const FromTy *Val) {
     return FromTy::castToDeclContext(Val);
   }
 };
 
-template<class FromTy>
-struct cast_convert_val< const ::clang::DeclContext, FromTy, FromTy> {
+template <class FromTy>
+struct cast_convert_val<const ::clang::DeclContext, FromTy, FromTy> {
   static const ::clang::DeclContext &doit(const FromTy &Val) {
     return *FromTy::castToDeclContext(&Val);
   }
 };
 
-template<class FromTy>
-struct cast_convert_val< const ::clang::DeclContext, FromTy*, FromTy*> {
+template <class FromTy>
+struct cast_convert_val<const ::clang::DeclContext, FromTy *, FromTy *> {
   static const ::clang::DeclContext *doit(const FromTy *Val) {
     return FromTy::castToDeclContext(Val);
   }

@@ -68,43 +68,37 @@ class TagDecl;
 class TemplateParameterList;
 class Type;
 
-enum {
-  TypeAlignmentInBits = 4,
-  TypeAlignment = 1 << TypeAlignmentInBits
-};
+enum { TypeAlignmentInBits = 4, TypeAlignment = 1 << TypeAlignmentInBits };
 
 namespace serialization {
-  template <class T> class AbstractTypeReader;
-  template <class T> class AbstractTypeWriter;
-}
+template <class T> class AbstractTypeReader;
+template <class T> class AbstractTypeWriter;
+} // namespace serialization
 
 } // namespace clang
 
 namespace llvm {
 
-  template <typename T>
-  struct PointerLikeTypeTraits;
-  template<>
-  struct PointerLikeTypeTraits< ::clang::Type*> {
-    static inline void *getAsVoidPointer(::clang::Type *P) { return P; }
+template <typename T> struct PointerLikeTypeTraits;
+template <> struct PointerLikeTypeTraits<::clang::Type *> {
+  static inline void *getAsVoidPointer(::clang::Type *P) { return P; }
 
-    static inline ::clang::Type *getFromVoidPointer(void *P) {
-      return static_cast< ::clang::Type*>(P);
-    }
+  static inline ::clang::Type *getFromVoidPointer(void *P) {
+    return static_cast<::clang::Type *>(P);
+  }
 
-    static constexpr int NumLowBitsAvailable = clang::TypeAlignmentInBits;
-  };
+  static constexpr int NumLowBitsAvailable = clang::TypeAlignmentInBits;
+};
 
-  template<>
-  struct PointerLikeTypeTraits< ::clang::ExtQuals*> {
-    static inline void *getAsVoidPointer(::clang::ExtQuals *P) { return P; }
+template <> struct PointerLikeTypeTraits<::clang::ExtQuals *> {
+  static inline void *getAsVoidPointer(::clang::ExtQuals *P) { return P; }
 
-    static inline ::clang::ExtQuals *getFromVoidPointer(void *P) {
-      return static_cast< ::clang::ExtQuals*>(P);
-    }
+  static inline ::clang::ExtQuals *getFromVoidPointer(void *P) {
+    return static_cast<::clang::ExtQuals *>(P);
+  }
 
-    static constexpr int NumLowBitsAvailable = clang::TypeAlignmentInBits;
-  };
+  static constexpr int NumLowBitsAvailable = clang::TypeAlignmentInBits;
+};
 
 } // namespace llvm
 
@@ -326,11 +320,7 @@ public:
     CVRMask = Const | Volatile | Restrict
   };
 
-  enum GC {
-    GCNone = 0,
-    Weak,
-    Strong
-  };
+  enum GC { GCNone = 0, Weak, Strong };
 
   enum ObjCLifetime {
     /// There is no lifetime qualification on this type.
@@ -483,9 +473,7 @@ public:
     assert(!(mask & ~CVRMask) && "bitmask contains non-CVR bits");
     Mask &= ~static_cast<uint64_t>(mask);
   }
-  void removeCVRQualifiers() {
-    removeCVRQualifiers(CVRMask);
-  }
+  void removeCVRQualifiers() { removeCVRQualifiers(CVRMask); }
   void addCVRQualifiers(unsigned mask) {
     assert(!(mask & ~CVRMask) && "bitmask contains non-CVR bits");
     Mask |= mask;
@@ -496,9 +484,7 @@ public:
   }
 
   bool hasUnaligned() const { return Mask & UMask; }
-  void setUnaligned(bool flag) {
-    Mask = (Mask & ~UMask) | (flag ? UMask : 0);
-  }
+  void setUnaligned(bool flag) { Mask = (Mask & ~UMask) | (flag ? UMask : 0); }
   void removeUnaligned() { Mask &= ~UMask; }
   void addUnaligned() { Mask |= UMask; }
 
@@ -577,8 +563,8 @@ public:
   }
   void setAddressSpace(LangAS space) {
     assert((unsigned)space <= MaxAddressSpace);
-    Mask = (Mask & ~AddressSpaceMask)
-         | (((uint32_t) space) << AddressSpaceShift);
+    Mask =
+        (Mask & ~AddressSpaceMask) | (((uint32_t)space) << AddressSpaceShift);
   }
   void removeAddressSpace() { setAddressSpace(LangAS::Default); }
   void addAddressSpace(LangAS space) {
@@ -612,9 +598,7 @@ public:
     assert(!(mask & ~FastMask) && "bitmask contains non-fast qualifier bits");
     Mask &= ~static_cast<uint64_t>(mask);
   }
-  void removeFastQualifiers() {
-    removeFastQualifiers(FastMask);
-  }
+  void removeFastQualifiers() { removeFastQualifiers(FastMask); }
   void addFastQualifiers(unsigned mask) {
     assert(!(mask & ~FastMask) && "bitmask contains non-fast qualifier bits");
     Mask |= mask;
@@ -674,12 +658,12 @@ public:
   /// Add the qualifiers from the given set to this set, given that
   /// they don't conflict.
   void addConsistentQualifiers(Qualifiers qs) {
-    assert(getAddressSpace() == qs.getAddressSpace() ||
-           !hasAddressSpace() || !qs.hasAddressSpace());
-    assert(getObjCGCAttr() == qs.getObjCGCAttr() ||
-           !hasObjCGCAttr() || !qs.hasObjCGCAttr());
-    assert(getObjCLifetime() == qs.getObjCLifetime() ||
-           !hasObjCLifetime() || !qs.hasObjCLifetime());
+    assert(getAddressSpace() == qs.getAddressSpace() || !hasAddressSpace() ||
+           !qs.hasAddressSpace());
+    assert(getObjCGCAttr() == qs.getObjCGCAttr() || !hasObjCGCAttr() ||
+           !qs.hasObjCGCAttr());
+    assert(getObjCLifetime() == qs.getObjCLifetime() || !hasObjCLifetime() ||
+           !qs.hasObjCLifetime());
     assert(!hasPointerAuth() || !qs.hasPointerAuth() ||
            getPointerAuth() == qs.getPointerAuth());
     Mask |= qs.Mask;
@@ -884,7 +868,7 @@ struct SplitQualType {
   SplitQualType getSingleStepDesugaredType() const; // end of this file
 
   // Make std::tie work.
-  std::pair<const Type *,Qualifiers> asPair() const {
+  std::pair<const Type *, Qualifiers> asPair() const {
     return std::pair<const Type *, Qualifiers>(Ty, Quals);
   }
 
@@ -943,21 +927,22 @@ class QualType {
 
   // Thankfully, these are efficiently composable.
   llvm::PointerIntPair<llvm::PointerUnion<const Type *, const ExtQuals *>,
-                       Qualifiers::FastWidth> Value;
+                       Qualifiers::FastWidth>
+      Value;
 
   const ExtQuals *getExtQualsUnsafe() const {
-    return Value.getPointer().get<const ExtQuals*>();
+    return Value.getPointer().get<const ExtQuals *>();
   }
 
   const Type *getTypePtrUnsafe() const {
-    return Value.getPointer().get<const Type*>();
+    return Value.getPointer().get<const Type *>();
   }
 
   const ExtQualsTypeCommonBase *getCommonPtr() const {
     assert(!isNull() && "Cannot retrieve a NULL type pointer");
     auto CommonPtrVal = reinterpret_cast<uintptr_t>(Value.getOpaqueValue());
     CommonPtrVal &= ~(uintptr_t)((1 << TypeAlignmentInBits) - 1);
-    return reinterpret_cast<ExtQualsTypeCommonBase*>(CommonPtrVal);
+    return reinterpret_cast<ExtQualsTypeCommonBase *>(CommonPtrVal);
   }
 
 public:
@@ -989,25 +974,19 @@ public:
 
   static QualType getFromOpaquePtr(const void *Ptr) {
     QualType T;
-    T.Value.setFromOpaqueValue(const_cast<void*>(Ptr));
+    T.Value.setFromOpaqueValue(const_cast<void *>(Ptr));
     return T;
   }
 
-  const Type &operator*() const {
-    return *getTypePtr();
-  }
+  const Type &operator*() const { return *getTypePtr(); }
 
-  const Type *operator->() const {
-    return getTypePtr();
-  }
+  const Type *operator->() const { return getTypePtr(); }
 
   bool isCanonical() const;
   bool isCanonicalAsParam() const;
 
   /// Return true if this QualType doesn't point to a type yet.
-  bool isNull() const {
-    return Value.getPointer().isNull();
-  }
+  bool isNull() const { return Value.getPointer().isNull(); }
 
   // Determines if a type can form `T&`.
   bool isReferenceable() const;
@@ -1076,7 +1055,7 @@ public:
   /// "non-fast" qualifiers, e.g., those that are stored in an ExtQualType
   /// instance.
   bool hasLocalNonFastQualifiers() const {
-    return Value.getPointer().is<const ExtQuals*>();
+    return Value.getPointer().is<const ExtQuals *>();
   }
 
   /// Retrieve the set of qualifiers local to this particular QualType
@@ -1090,15 +1069,13 @@ public:
   /// Retrieve the set of CVR (const-volatile-restrict) qualifiers
   /// local to this particular QualType instance, not including any qualifiers
   /// acquired through typedefs or other sugar.
-  unsigned getLocalCVRQualifiers() const {
-    return getLocalFastQualifiers();
-  }
+  unsigned getLocalCVRQualifiers() const { return getLocalFastQualifiers(); }
 
   /// Retrieve the set of CVR (const-volatile-restrict) qualifiers
   /// applied to this type.
   unsigned getCVRQualifiers() const;
 
-  bool isConstant(const ASTContext& Ctx) const {
+  bool isConstant(const ASTContext &Ctx) const {
     return QualType::isConstant(*this, Ctx);
   }
 
@@ -1160,25 +1137,17 @@ public:
   // easily added.
 
   /// Add the `const` type qualifier to this QualType.
-  void addConst() {
-    addFastQualifiers(Qualifiers::Const);
-  }
-  QualType withConst() const {
-    return withFastQualifiers(Qualifiers::Const);
-  }
+  void addConst() { addFastQualifiers(Qualifiers::Const); }
+  QualType withConst() const { return withFastQualifiers(Qualifiers::Const); }
 
   /// Add the `volatile` type qualifier to this QualType.
-  void addVolatile() {
-    addFastQualifiers(Qualifiers::Volatile);
-  }
+  void addVolatile() { addFastQualifiers(Qualifiers::Volatile); }
   QualType withVolatile() const {
     return withFastQualifiers(Qualifiers::Volatile);
   }
 
   /// Add the `restrict` qualifier to this QualType.
-  void addRestrict() {
-    addFastQualifiers(Qualifiers::Restrict);
-  }
+  void addRestrict() { addFastQualifiers(Qualifiers::Restrict); }
   QualType withRestrict() const {
     return withFastQualifiers(Qualifiers::Restrict);
   }
@@ -1188,8 +1157,8 @@ public:
   }
 
   void addFastQualifiers(unsigned TQs) {
-    assert(!(TQs & ~Qualifiers::FastMask)
-           && "non-fast qualifier bits set in mask!");
+    assert(!(TQs & ~Qualifiers::FastMask) &&
+           "non-fast qualifier bits set in mask!");
     Value.setInt(Value.getInt() | TQs);
   }
 
@@ -1356,9 +1325,8 @@ public:
     return print(split.Ty, split.Quals, OS, policy, PlaceHolder, Indentation);
   }
 
-  static void print(const Type *ty, Qualifiers qs,
-                    raw_ostream &OS, const PrintingPolicy &policy,
-                    const Twine &PlaceHolder,
+  static void print(const Type *ty, Qualifiers qs, raw_ostream &OS,
+                    const PrintingPolicy &policy, const Twine &PlaceHolder,
                     unsigned Indentation = 0);
 
   void getAsStringInternal(std::string &Str,
@@ -1431,14 +1399,10 @@ public:
   inline Qualifiers::GC getObjCGCAttr() const;
 
   /// true when Type is objc's weak.
-  bool isObjCGCWeak() const {
-    return getObjCGCAttr() == Qualifiers::Weak;
-  }
+  bool isObjCGCWeak() const { return getObjCGCAttr() == Qualifiers::Weak; }
 
   /// true when Type is objc's strong.
-  bool isObjCGCStrong() const {
-    return getObjCGCAttr() == Qualifiers::Strong;
-  }
+  bool isObjCGCStrong() const { return getObjCGCAttr() == Qualifiers::Strong; }
 
   /// Returns lifetime attribute of this type.
   Qualifiers::ObjCLifetime getObjCLifetime() const {
@@ -1585,8 +1549,7 @@ public:
   /// \param context The context in which the subject type was written.
   ///
   /// \returns the resulting type.
-  QualType substObjCTypeArgs(ASTContext &ctx,
-                             ArrayRef<QualType> typeArgs,
+  QualType substObjCTypeArgs(ASTContext &ctx, ArrayRef<QualType> typeArgs,
                              ObjCSubstitutionContext context) const;
 
   /// Substitute type arguments from an object type for the Objective-C type
@@ -1609,8 +1572,7 @@ public:
   ///
   /// \returns the subject type after replacing all of the Objective-C type
   /// parameters with their corresponding arguments.
-  QualType substObjCMemberType(QualType objectType,
-                               const DeclContext *dc,
+  QualType substObjCMemberType(QualType objectType, const DeclContext *dc,
                                ObjCSubstitutionContext context) const;
 
   /// Strip Objective-C "__kindof" types from the given type.
@@ -1627,7 +1589,7 @@ private:
   // These methods are implemented in a separate translation unit;
   // "static"-ize them to avoid creating temporary QualTypes in the
   // caller.
-  static bool isConstant(QualType T, const ASTContext& Ctx);
+  static bool isConstant(QualType T, const ASTContext &Ctx);
   static QualType getDesugaredType(QualType T, const ASTContext &Context);
   static SplitQualType getSplitDesugaredType(QualType T);
   static SplitQualType getSplitUnqualifiedTypeImpl(QualType type);
@@ -1637,7 +1599,8 @@ private:
   static DestructionKind isDestructedTypeImpl(QualType type);
 
   /// Check if \param RD is or contains a non-trivial C union.
-  static bool hasNonTrivialToPrimitiveDefaultInitializeCUnion(const RecordDecl *RD);
+  static bool
+  hasNonTrivialToPrimitiveDefaultInitializeCUnion(const RecordDecl *RD);
   static bool hasNonTrivialToPrimitiveDestructCUnion(const RecordDecl *RD);
   static bool hasNonTrivialToPrimitiveCopyCUnion(const RecordDecl *RD);
 };
@@ -1650,7 +1613,7 @@ namespace llvm {
 
 /// Implement simplify_type for QualType, so that we can dyn_cast from QualType
 /// to a specific Type class.
-template<> struct simplify_type< ::clang::QualType> {
+template <> struct simplify_type<::clang::QualType> {
   using SimpleType = const ::clang::Type *;
 
   static SimpleType getSimplifiedValue(::clang::QualType Val) {
@@ -1659,8 +1622,7 @@ template<> struct simplify_type< ::clang::QualType> {
 };
 
 // Teach SmallPtrSet that QualType is "basically a pointer".
-template<>
-struct PointerLikeTypeTraits<clang::QualType> {
+template <> struct PointerLikeTypeTraits<clang::QualType> {
   static inline void *getAsVoidPointer(clang::QualType P) {
     return P.getAsOpaquePtr();
   }
@@ -1735,10 +1697,10 @@ public:
       : ExtQualsTypeCommonBase(baseType,
                                canon.isNull() ? QualType(this_(), 0) : canon),
         Quals(quals) {
-    assert(Quals.hasNonFastQualifiers()
-           && "ExtQuals created with no fast qualifiers");
-    assert(!Quals.hasFastQualifiers()
-           && "ExtQuals created with fast qualifiers");
+    assert(Quals.hasNonFastQualifiers() &&
+           "ExtQuals created with no fast qualifiers");
+    assert(!Quals.hasFastQualifiers() &&
+           "ExtQuals created with fast qualifiers");
   }
 
   Qualifiers getQualifiers() const { return Quals; }
@@ -1761,8 +1723,7 @@ public:
     Profile(ID, getBaseType(), Quals);
   }
 
-  static void Profile(llvm::FoldingSetNodeID &ID,
-                      const Type *BaseType,
+  static void Profile(llvm::FoldingSetNodeID &ID, const Type *BaseType,
                       Qualifiers Quals) {
     assert(!Quals.hasFastQualifiers() && "fast qualifiers in ExtQuals hash!");
     ID.AddPointer(BaseType);
@@ -1866,9 +1827,7 @@ private:
     LLVM_PREFERRED_TYPE(bool)
     mutable unsigned FromAST : 1;
 
-    bool isCacheValid() const {
-      return CacheValid;
-    }
+    bool isCacheValid() const { return CacheValid; }
 
     Linkage getLinkage() const {
       assert(isCacheValid() && "getting linkage from invalid cache");
@@ -2261,7 +2220,7 @@ protected:
     SubstTemplateTypeParmPackTypeBitfields SubstTemplateTypeParmPackTypeBits;
     TemplateSpecializationTypeBitfields TemplateSpecializationTypeBits;
     DependentTemplateSpecializationTypeBitfields
-      DependentTemplateSpecializationTypeBits;
+        DependentTemplateSpecializationTypeBits;
     PackExpansionTypeBitfields PackExpansionTypeBits;
     CountAttributedTypeBitfields CountAttributedTypeBits;
   };
@@ -2270,9 +2229,7 @@ private:
   template <class T> friend class TypePropertyCache;
 
   /// Set whether this type comes from an AST file.
-  void setFromAST(bool V = true) const {
-    TypeBits.FromAST = V;
-  }
+  void setFromAST(bool V = true) const { TypeBits.FromAST = V; }
 
 protected:
   friend class ASTContext;
@@ -2413,9 +2370,7 @@ public:
 
   /// Return true if this is an incomplete or object
   /// type, in other words, not a function type.
-  bool isIncompleteOrObjectType() const {
-    return !isFunctionType();
-  }
+  bool isIncompleteOrObjectType() const { return !isFunctionType(); }
 
   /// Determine whether this type is an object type.
   bool isObjectType() const {
@@ -2460,7 +2415,7 @@ public:
 
   /// isIntegerType() does *not* include complex integers (a GCC extension).
   /// isComplexIntegerType() can be used to test for complex integers.
-  bool isIntegerType() const;     // C99 6.2.5p17 (int, char, bool, enum)
+  bool isIntegerType() const; // C99 6.2.5p17 (int, char, bool, enum)
   bool isEnumeralType() const;
 
   /// Determine whether this type is a scoped enumeration type.
@@ -2485,20 +2440,20 @@ public:
   bool isRealFloatingType() const; // C99 6.2.5p10 (float, double, long double)
   /// isComplexType() does *not* include complex integers (a GCC extension).
   /// isComplexIntegerType() can be used to test for complex integers.
-  bool isComplexType() const;      // C99 6.2.5p11 (complex)
-  bool isAnyComplexType() const;   // C99 6.2.5p11 (complex) + Complex Int.
-  bool isFloatingType() const;     // C99 6.2.5p11 (real floating + complex)
-  bool isHalfType() const;         // OpenCL 6.1.1.1, NEON (IEEE 754-2008 half)
-  bool isFloat16Type() const;      // C11 extension ISO/IEC TS 18661
+  bool isComplexType() const;    // C99 6.2.5p11 (complex)
+  bool isAnyComplexType() const; // C99 6.2.5p11 (complex) + Complex Int.
+  bool isFloatingType() const;   // C99 6.2.5p11 (real floating + complex)
+  bool isHalfType() const;       // OpenCL 6.1.1.1, NEON (IEEE 754-2008 half)
+  bool isFloat16Type() const;    // C11 extension ISO/IEC TS 18661
   bool isFloat32Type() const;
   bool isDoubleType() const;
   bool isBFloat16Type() const;
   bool isFloat128Type() const;
   bool isIbm128Type() const;
-  bool isRealType() const;         // C99 6.2.5p17 (real floating + integer)
-  bool isArithmeticType() const;   // C99 6.2.5p18 (integer + floating)
-  bool isVoidType() const;         // C99 6.2.5p19
-  bool isScalarType() const;       // C99 6.2.5p21 (arithmetic + pointers)
+  bool isRealType() const;       // C99 6.2.5p17 (real floating + integer)
+  bool isArithmeticType() const; // C99 6.2.5p18 (integer + floating)
+  bool isVoidType() const;       // C99 6.2.5p19
+  bool isScalarType() const;     // C99 6.2.5p21 (arithmetic + pointers)
   bool isAggregateType() const;
   bool isFundamentalType() const;
   bool isCompoundType() const;
@@ -2510,7 +2465,7 @@ public:
   bool isFunctionProtoType() const { return getAs<FunctionProtoType>(); }
   bool isPointerType() const;
   bool isSignableType() const;
-  bool isAnyPointerType() const;   // Any C pointer or ObjC object pointer
+  bool isAnyPointerType() const; // Any C pointer or ObjC object pointer
   bool isCountAttributedType() const;
   bool isBlockPointerType() const;
   bool isVoidPointerType() const;
@@ -2537,28 +2492,30 @@ public:
   bool isInterfaceType() const;
   bool isStructureOrClassType() const;
   bool isUnionType() const;
-  bool isComplexIntegerType() const;            // GCC _Complex integer type.
-  bool isVectorType() const;                    // GCC vector type.
-  bool isExtVectorType() const;                 // Extended vector type.
-  bool isExtVectorBoolType() const;             // Extended vector type with bool element.
+  bool isComplexIntegerType() const; // GCC _Complex integer type.
+  bool isVectorType() const;         // GCC vector type.
+  bool isExtVectorType() const;      // Extended vector type.
+  bool isExtVectorBoolType() const;  // Extended vector type with bool element.
   bool isSubscriptableVectorType() const;
-  bool isMatrixType() const;                    // Matrix type.
-  bool isConstantMatrixType() const;            // Constant matrix type.
-  bool isDependentAddressSpaceType() const;     // value-dependent address space qualifier
-  bool isObjCObjectPointerType() const;         // pointer to ObjC object
-  bool isObjCRetainableType() const;            // ObjC object or block pointer
-  bool isObjCLifetimeType() const;              // (array of)* retainable type
-  bool isObjCIndirectLifetimeType() const;      // (pointer to)* lifetime type
-  bool isObjCNSObjectType() const;              // __attribute__((NSObject))
-  bool isObjCIndependentClassType() const;      // __attribute__((objc_independent_class))
+  bool isMatrixType() const;         // Matrix type.
+  bool isConstantMatrixType() const; // Constant matrix type.
+  bool isDependentAddressSpaceType()
+      const; // value-dependent address space qualifier
+  bool isObjCObjectPointerType() const;    // pointer to ObjC object
+  bool isObjCRetainableType() const;       // ObjC object or block pointer
+  bool isObjCLifetimeType() const;         // (array of)* retainable type
+  bool isObjCIndirectLifetimeType() const; // (pointer to)* lifetime type
+  bool isObjCNSObjectType() const;         // __attribute__((NSObject))
+  bool
+  isObjCIndependentClassType() const; // __attribute__((objc_independent_class))
   // FIXME: change this to 'raw' interface type, so we can used 'interface' type
   // for the common case.
-  bool isObjCObjectType() const;                // NSString or typeof(*(id)0)
-  bool isObjCQualifiedInterfaceType() const;    // NSString<foo>
-  bool isObjCQualifiedIdType() const;           // id<foo>
-  bool isObjCQualifiedClassType() const;        // Class<foo>
+  bool isObjCObjectType() const;             // NSString or typeof(*(id)0)
+  bool isObjCQualifiedInterfaceType() const; // NSString<foo>
+  bool isObjCQualifiedIdType() const;        // id<foo>
+  bool isObjCQualifiedClassType() const;     // Class<foo>
   bool isObjCObjectOrInterfaceType() const;
-  bool isObjCIdType() const;                    // id
+  bool isObjCIdType() const; // id
   bool isDecltypeType() const;
   /// Was this type written with the special inert-in-ARC __unsafe_unretained
   /// qualifier?
@@ -2580,7 +2537,7 @@ public:
   bool isObjCIdOrObjectKindOfType(const ASTContext &ctx,
                                   const ObjCObjectType *&bound) const;
 
-  bool isObjCClassType() const;                 // Class
+  bool isObjCClassType() const; // Class
 
   /// Whether the type is Objective-C 'Class' or a __kindof type of an
   /// Class type, e.g., __kindof Class <NSCopying>.
@@ -2591,43 +2548,42 @@ public:
   bool isObjCClassOrClassKindOfType() const;
 
   bool isBlockCompatibleObjCPointerType(ASTContext &ctx) const;
-  bool isObjCSelType() const;                 // Class
-  bool isObjCBuiltinType() const;               // 'id' or 'Class'
+  bool isObjCSelType() const;     // Class
+  bool isObjCBuiltinType() const; // 'id' or 'Class'
   bool isObjCARCBridgableType() const;
   bool isCARCBridgableType() const;
-  bool isTemplateTypeParmType() const;          // C++ template type parameter
-  bool isNullPtrType() const;                   // C++11 std::nullptr_t or
-                                                // C23   nullptr_t
-  bool isNothrowT() const;                      // C++   std::nothrow_t
-  bool isAlignValT() const;                     // C++17 std::align_val_t
-  bool isStdByteType() const;                   // C++17 std::byte
-  bool isAtomicType() const;                    // C11 _Atomic()
-  bool isUndeducedAutoType() const;             // C++11 auto or
-                                                // C++14 decltype(auto)
-  bool isTypedefNameType() const;               // typedef or alias template
+  bool isTemplateTypeParmType() const; // C++ template type parameter
+  bool isNullPtrType() const;          // C++11 std::nullptr_t or
+                                       // C23   nullptr_t
+  bool isNothrowT() const;             // C++   std::nothrow_t
+  bool isAlignValT() const;            // C++17 std::align_val_t
+  bool isStdByteType() const;          // C++17 std::byte
+  bool isAtomicType() const;           // C11 _Atomic()
+  bool isUndeducedAutoType() const;    // C++11 auto or
+                                       // C++14 decltype(auto)
+  bool isTypedefNameType() const;      // typedef or alias template
 
-#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix)                   \
   bool is##Id##Type() const;
 #include "clang/Basic/OpenCLImageTypes.def"
 
-  bool isImageType() const;                     // Any OpenCL image type
+  bool isImageType() const; // Any OpenCL image type
 
-  bool isSamplerT() const;                      // OpenCL sampler_t
-  bool isEventT() const;                        // OpenCL event_t
-  bool isClkEventT() const;                     // OpenCL clk_event_t
-  bool isQueueT() const;                        // OpenCL queue_t
-  bool isReserveIDT() const;                    // OpenCL reserve_id_t
+  bool isSamplerT() const;   // OpenCL sampler_t
+  bool isEventT() const;     // OpenCL event_t
+  bool isClkEventT() const;  // OpenCL clk_event_t
+  bool isQueueT() const;     // OpenCL queue_t
+  bool isReserveIDT() const; // OpenCL reserve_id_t
 
-#define EXT_OPAQUE_TYPE(ExtType, Id, Ext) \
-  bool is##Id##Type() const;
+#define EXT_OPAQUE_TYPE(ExtType, Id, Ext) bool is##Id##Type() const;
 #include "clang/Basic/OpenCLExtensionTypes.def"
   // Type defined in cl_intel_device_side_avc_motion_estimation OpenCL extension
   bool isOCLIntelSubgroupAVCType() const;
-  bool isOCLExtOpaqueType() const;              // Any OpenCL extension type
+  bool isOCLExtOpaqueType() const; // Any OpenCL extension type
 
-  bool isPipeType() const;                      // OpenCL pipe type
-  bool isBitIntType() const;                    // Bit-precise integer type
-  bool isOpenCLSpecificType() const;            // Any OpenCL specific type
+  bool isPipeType() const;           // OpenCL pipe type
+  bool isBitIntType() const;         // Bit-precise integer type
+  bool isOpenCLSpecificType() const; // Any OpenCL specific type
 
   /// Determines if this type, which must satisfy
   /// isObjCLifetimeType(), is implicitly __unsafe_unretained rather
@@ -2790,6 +2746,7 @@ public:
   /// There are some specializations of this member template listed
   /// immediately following this class.
   template <typename T> const T *getAs() const;
+  template <typename T> T *getAs();
 
   /// Member-template getAsAdjusted<specific type>. Look through specific kinds
   /// of sugar (parens, attributes, etc) for an instance of \<specific type>.
@@ -2809,6 +2766,7 @@ public:
   /// to dyn_cast<T>; which is to say, the underlying type *must*
   /// have the intended type, and this method will never return null.
   template <typename T> const T *castAs() const;
+  template <typename T> T *castAs();
 
   /// A variant of castAs<> for array type which silently discards
   /// qualifiers from the outermost type.
@@ -2952,9 +2910,7 @@ public:
 
   const char *getTypeClassName() const;
 
-  QualType getCanonicalTypeInternal() const {
-    return CanonicalType;
-  }
+  QualType getCanonicalTypeInternal() const { return CanonicalType; }
 
   CanQualType getCanonicalTypeUnqualified() const; // in CanonicalType.h
   void dump() const;
@@ -2964,35 +2920,41 @@ public:
 /// This will check for a TypedefType by removing any existing sugar
 /// until it reaches a TypedefType or a non-sugared type.
 template <> const TypedefType *Type::getAs() const;
+template <> TypedefType *Type::getAs();
 template <> const UsingType *Type::getAs() const;
+template <> UsingType *Type::getAs();
 
 /// This will check for a TemplateSpecializationType by removing any
 /// existing sugar until it reaches a TemplateSpecializationType or a
 /// non-sugared type.
 template <> const TemplateSpecializationType *Type::getAs() const;
+template <> TemplateSpecializationType *Type::getAs();
 
 /// This will check for an AttributedType by removing any existing sugar
 /// until it reaches an AttributedType or a non-sugared type.
 template <> const AttributedType *Type::getAs() const;
+template <> AttributedType *Type::getAs();
 
 /// This will check for a BoundsAttributedType by removing any existing
 /// sugar until it reaches an BoundsAttributedType or a non-sugared type.
 template <> const BoundsAttributedType *Type::getAs() const;
+template <> BoundsAttributedType *Type::getAs();
 
 /// This will check for a CountAttributedType by removing any existing
 /// sugar until it reaches an CountAttributedType or a non-sugared type.
 template <> const CountAttributedType *Type::getAs() const;
+template <> CountAttributedType *Type::getAs();
 
 // We can do canonical leaf types faster, because we don't have to
 // worry about preserving child type decoration.
 #define TYPE(Class, Base)
-#define LEAF_TYPE(Class) \
-template <> inline const Class##Type *Type::getAs() const { \
-  return dyn_cast<Class##Type>(CanonicalType); \
-} \
-template <> inline const Class##Type *Type::castAs() const { \
-  return cast<Class##Type>(CanonicalType); \
-}
+#define LEAF_TYPE(Class)                                                       \
+  template <> inline const Class##Type *Type::getAs() const {                  \
+    return dyn_cast<Class##Type>(CanonicalType);                               \
+  }                                                                            \
+  template <> inline const Class##Type *Type::castAs() const {                 \
+    return cast<Class##Type>(CanonicalType);                                   \
+  }
 #include "clang/AST/TypeNodes.inc"
 
 /// This class is used for builtin types like 'int'.  Builtin
@@ -3055,9 +3017,7 @@ public:
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
 
-  bool isInteger() const {
-    return getKind() >= Bool && getKind() <= Int128;
-  }
+  bool isInteger() const { return getKind() >= Bool && getKind() <= Int128; }
 
   bool isSignedInteger() const {
     return getKind() >= Char_S && getKind() <= Int128;
@@ -3076,16 +3036,12 @@ public:
   bool isSVECount() const { return getKind() == Kind::SveCount; }
 
   /// Determines whether the given kind corresponds to a placeholder type.
-  static bool isPlaceholderTypeKind(Kind K) {
-    return K >= Overload;
-  }
+  static bool isPlaceholderTypeKind(Kind K) { return K >= Overload; }
 
   /// Determines whether this type is a placeholder type, i.e. a type
   /// which cannot appear in arbitrary positions in a fully-formed
   /// expression.
-  bool isPlaceholderType() const {
-    return isPlaceholderTypeKind(getKind());
-  }
+  bool isPlaceholderType() const { return isPlaceholderTypeKind(getKind()); }
 
   /// Determines whether this type is a placeholder type other than
   /// Overload.  Most placeholder types require only syntactic
@@ -3096,9 +3052,7 @@ public:
   /// from their context, like whether the context expects a
   /// specific function-pointer type, and so frequently need
   /// special treatment.
-  bool isNonOverloadPlaceholderType() const {
-    return getKind() > Overload;
-  }
+  bool isNonOverloadPlaceholderType() const { return getKind() > Overload; }
 
   static bool classof(const Type *T) { return T->getTypeClass() == Builtin; }
 };
@@ -3120,9 +3074,7 @@ public:
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
 
-  void Profile(llvm::FoldingSetNodeID &ID) {
-    Profile(ID, getElementType());
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) { Profile(ID, getElementType()); }
 
   static void Profile(llvm::FoldingSetNodeID &ID, QualType Element) {
     ID.AddPointer(Element.getAsOpaquePtr());
@@ -3146,9 +3098,7 @@ public:
   bool isSugared() const { return true; }
   QualType desugar() const { return getInnerType(); }
 
-  void Profile(llvm::FoldingSetNodeID &ID) {
-    Profile(ID, getInnerType());
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) { Profile(ID, getInnerType()); }
 
   static void Profile(llvm::FoldingSetNodeID &ID, QualType Inner) {
     Inner.Profile(ID);
@@ -3173,9 +3123,7 @@ public:
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
 
-  void Profile(llvm::FoldingSetNodeID &ID) {
-    Profile(ID, getPointeeType());
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) { Profile(ID, getPointeeType()); }
 
   static void Profile(llvm::FoldingSetNodeID &ID, QualType Pointee) {
     ID.AddPointer(Pointee.getAsOpaquePtr());
@@ -3354,8 +3302,8 @@ public:
 class DecayedType : public AdjustedType {
   friend class ASTContext; // ASTContext creates these.
 
-  inline
-  DecayedType(QualType OriginalType, QualType Decayed, QualType Canonical);
+  inline DecayedType(QualType OriginalType, QualType Decayed,
+                     QualType Canonical);
 
 public:
   QualType getDecayedType() const { return getAdjustedType(); }
@@ -3385,12 +3333,10 @@ public:
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
 
-  void Profile(llvm::FoldingSetNodeID &ID) {
-      Profile(ID, getPointeeType());
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) { Profile(ID, getPointeeType()); }
 
   static void Profile(llvm::FoldingSetNodeID &ID, QualType Pointee) {
-      ID.AddPointer(Pointee.getAsOpaquePtr());
+    ID.AddPointer(Pointee.getAsOpaquePtr());
   }
 
   static bool classof(const Type *T) {
@@ -3429,8 +3375,7 @@ public:
     Profile(ID, PointeeType, isSpelledAsLValue());
   }
 
-  static void Profile(llvm::FoldingSetNodeID &ID,
-                      QualType Referencee,
+  static void Profile(llvm::FoldingSetNodeID &ID, QualType Referencee,
                       bool SpelledAsLValue) {
     ID.AddPointer(Referencee.getAsOpaquePtr());
     ID.AddBoolean(SpelledAsLValue);
@@ -3465,7 +3410,7 @@ class RValueReferenceType : public ReferenceType {
   friend class ASTContext; // ASTContext creates these
 
   RValueReferenceType(QualType Referencee, QualType CanonicalRef)
-       : ReferenceType(RValueReference, Referencee, CanonicalRef, false) {}
+      : ReferenceType(RValueReference, Referencee, CanonicalRef, false) {}
 
 public:
   bool isSugared() const { return false; }
@@ -3725,8 +3670,8 @@ public:
 class IncompleteArrayType : public ArrayType {
   friend class ASTContext; // ASTContext creates these.
 
-  IncompleteArrayType(QualType et, QualType can,
-                      ArraySizeModifier sm, unsigned tq)
+  IncompleteArrayType(QualType et, QualType can, ArraySizeModifier sm,
+                      unsigned tq)
       : ArrayType(IncompleteArray, et, can, sm, tq) {}
 
 public:
@@ -3776,11 +3721,10 @@ class VariableArrayType : public ArrayType {
   /// The range spanned by the left and right array brackets.
   SourceRange Brackets;
 
-  VariableArrayType(QualType et, QualType can, Expr *e,
-                    ArraySizeModifier sm, unsigned tq,
-                    SourceRange brackets)
-      : ArrayType(VariableArray, et, can, sm, tq, e),
-        SizeExpr((Stmt*) e), Brackets(brackets) {}
+  VariableArrayType(QualType et, QualType can, Expr *e, ArraySizeModifier sm,
+                    unsigned tq, SourceRange brackets)
+      : ArrayType(VariableArray, et, can, sm, tq, e), SizeExpr((Stmt *)e),
+        Brackets(brackets) {}
 
 public:
   friend class StmtIteratorBase;
@@ -3788,7 +3732,7 @@ public:
   Expr *getSizeExpr() const {
     // We use C-style casts instead of cast<> here because we do not wish
     // to have a dependency of Type.h on Stmt.h/Expr.h.
-    return (Expr*) SizeExpr;
+    return (Expr *)SizeExpr;
   }
 
   SourceRange getBracketsRange() const { return Brackets; }
@@ -3843,7 +3787,7 @@ public:
   Expr *getSizeExpr() const {
     // We use C-style casts instead of cast<> here because we do not wish
     // to have a dependency of Type.h on Stmt.h/Expr.h.
-    return (Expr*) SizeExpr;
+    return (Expr *)SizeExpr;
   }
 
   SourceRange getBracketsRange() const { return Brackets; }
@@ -3858,8 +3802,8 @@ public:
   }
 
   void Profile(llvm::FoldingSetNodeID &ID, const ASTContext &Context) {
-    Profile(ID, Context, getElementType(),
-            getSizeModifier(), getIndexTypeCVRQualifiers(), getSizeExpr());
+    Profile(ID, Context, getElementType(), getSizeModifier(),
+            getIndexTypeCVRQualifiers(), getSizeExpr());
   }
 
   static void Profile(llvm::FoldingSetNodeID &ID, const ASTContext &Context,
@@ -3869,7 +3813,8 @@ public:
 
 /// Represents an extended address space qualifier where the input address space
 /// value is dependent. Non-dependent address spaces are not represented with a
-/// special Type subclass; they are stored on an ExtQuals node as part of a QualType.
+/// special Type subclass; they are stored on an ExtQuals node as part of a
+/// QualType.
 ///
 /// For example:
 /// \code
@@ -4013,8 +3958,8 @@ public:
   }
 
   void Profile(llvm::FoldingSetNodeID &ID) {
-    Profile(ID, getElementType(), getNumElements(),
-            getTypeClass(), getVectorKind());
+    Profile(ID, getElementType(), getNumElements(), getTypeClass(),
+            getVectorKind());
   }
 
   static void Profile(llvm::FoldingSetNodeID &ID, QualType ElementType,
@@ -4090,39 +4035,65 @@ class ExtVectorType : public VectorType {
 public:
   static int getPointAccessorIdx(char c) {
     switch (c) {
-    default: return -1;
-    case 'x': case 'r': return 0;
-    case 'y': case 'g': return 1;
-    case 'z': case 'b': return 2;
-    case 'w': case 'a': return 3;
+    default:
+      return -1;
+    case 'x':
+    case 'r':
+      return 0;
+    case 'y':
+    case 'g':
+      return 1;
+    case 'z':
+    case 'b':
+      return 2;
+    case 'w':
+    case 'a':
+      return 3;
     }
   }
 
   static int getNumericAccessorIdx(char c) {
     switch (c) {
-      default: return -1;
-      case '0': return 0;
-      case '1': return 1;
-      case '2': return 2;
-      case '3': return 3;
-      case '4': return 4;
-      case '5': return 5;
-      case '6': return 6;
-      case '7': return 7;
-      case '8': return 8;
-      case '9': return 9;
-      case 'A':
-      case 'a': return 10;
-      case 'B':
-      case 'b': return 11;
-      case 'C':
-      case 'c': return 12;
-      case 'D':
-      case 'd': return 13;
-      case 'E':
-      case 'e': return 14;
-      case 'F':
-      case 'f': return 15;
+    default:
+      return -1;
+    case '0':
+      return 0;
+    case '1':
+      return 1;
+    case '2':
+      return 2;
+    case '3':
+      return 3;
+    case '4':
+      return 4;
+    case '5':
+      return 5;
+    case '6':
+      return 6;
+    case '7':
+      return 7;
+    case '8':
+      return 8;
+    case '9':
+      return 9;
+    case 'A':
+    case 'a':
+      return 10;
+    case 'B':
+    case 'b':
+      return 11;
+    case 'C':
+    case 'c':
+      return 12;
+    case 'D':
+    case 'd':
+      return 13;
+    case 'E':
+    case 'e':
+      return 14;
+    case 'F':
+    case 'f':
+      return 15;
     }
   }
 
@@ -4134,17 +4105,15 @@ public:
   }
 
   bool isAccessorWithinNumElements(char c, bool isNumericAccessor) const {
-    if (int idx = getAccessorIdx(c, isNumericAccessor)+1)
-      return unsigned(idx-1) < getNumElements();
+    if (int idx = getAccessorIdx(c, isNumericAccessor) + 1)
+      return unsigned(idx - 1) < getNumElements();
     return false;
   }
 
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
 
-  static bool classof(const Type *T) {
-    return T->getTypeClass() == ExtVector;
-  }
+  static bool classof(const Type *T) { return T->getTypeClass() == ExtVector; }
 };
 
 /// Represents a matrix type, as defined in the Matrix Types clang extensions.
@@ -4401,10 +4370,7 @@ public:
     enum { NoReturnMask = 0x20 };
     enum { ProducesResultMask = 0x40 };
     enum { NoCallerSavedRegsMask = 0x80 };
-    enum {
-      RegParmMask =  0x700,
-      RegParmOffset = 8
-    };
+    enum { RegParmMask = 0x700, RegParmOffset = 8 };
     enum { NoCfCheckMask = 0x800 };
     enum { CmseNSCallMask = 0x1000 };
     uint16_t Bits = CC_C;
@@ -4439,7 +4405,9 @@ public:
     bool getCmseNSCall() const { return Bits & CmseNSCallMask; }
     bool getNoCallerSavedRegs() const { return Bits & NoCallerSavedRegsMask; }
     bool getNoCfCheck() const { return Bits & NoCfCheckMask; }
-    bool getHasRegParm() const { return ((Bits & RegParmMask) >> RegParmOffset) != 0; }
+    bool getHasRegParm() const {
+      return ((Bits & RegParmMask) >> RegParmOffset) != 0;
+    }
 
     unsigned getRegParm() const {
       unsigned RegParm = (Bits & RegParmMask) >> RegParmOffset;
@@ -4450,12 +4418,8 @@ public:
 
     CallingConv getCC() const { return CallingConv(Bits & CallConvMask); }
 
-    bool operator==(ExtInfo Other) const {
-      return Bits == Other.Bits;
-    }
-    bool operator!=(ExtInfo Other) const {
-      return Bits != Other.Bits;
-    }
+    bool operator==(ExtInfo Other) const { return Bits == Other.Bits; }
+    bool operator!=(ExtInfo Other) const { return Bits != Other.Bits; }
 
     // Note that we don't have setters. That is by design, use
     // the following with methods instead of mutating these objects.
@@ -4497,23 +4461,22 @@ public:
 
     ExtInfo withRegParm(unsigned RegParm) const {
       assert(RegParm < 7 && "Invalid regparm value");
-      return ExtInfo((Bits & ~RegParmMask) |
-                     ((RegParm + 1) << RegParmOffset));
+      return ExtInfo((Bits & ~RegParmMask) | ((RegParm + 1) << RegParmOffset));
     }
 
     ExtInfo withCallingConv(CallingConv cc) const {
-      return ExtInfo((Bits & ~CallConvMask) | (unsigned) cc);
+      return ExtInfo((Bits & ~CallConvMask) | (unsigned)cc);
     }
 
-    void Profile(llvm::FoldingSetNodeID &ID) const {
-      ID.AddInteger(Bits);
-    }
+    void Profile(llvm::FoldingSetNodeID &ID) const { ID.AddInteger(Bits); }
   };
 
   /// A simple holder for a QualType representing a type in an
   /// exception specification. Unfortunately needed by FunctionProtoType
   /// because TrailingObjects cannot handle repeated types.
-  struct ExceptionType { QualType Type; };
+  struct ExceptionType {
+    QualType Type;
+  };
 
   /// A simple holder for various uncommon bits which do not fit in
   /// FunctionTypeBitfields. Aligned to alignof(void *) to maintain the
@@ -5209,7 +5172,6 @@ private:
             FunctionTypeBits.HasExtraBitfields) &&
            "ExtraBitfields are required for given ExceptionSpecType");
     return FunctionTypeBits.HasExtraBitfields;
-
   }
 
   bool hasArmTypeAttributes() const {
@@ -5218,9 +5180,7 @@ private:
                ->HasArmTypeAttributes;
   }
 
-  bool hasExtQualifiers() const {
-    return FunctionTypeBits.HasExtQuals;
-  }
+  bool hasExtQualifiers() const { return FunctionTypeBits.HasExtQuals; }
 
 public:
   unsigned getNumParams() const { return FunctionTypeBits.NumParams; }
@@ -5555,9 +5515,7 @@ public:
     return T->getTypeClass() == UnresolvedUsing;
   }
 
-  void Profile(llvm::FoldingSetNodeID &ID) {
-    return Profile(ID, Decl);
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) { return Profile(ID, Decl); }
 
   static void Profile(llvm::FoldingSetNodeID &ID,
                       UnresolvedUsingTypenameDecl *D) {
@@ -5938,13 +5896,13 @@ protected:
   friend class ASTContext; // ASTContext creates these.
 
   explicit RecordType(const RecordDecl *D)
-      : TagType(Record, reinterpret_cast<const TagDecl*>(D), QualType()) {}
+      : TagType(Record, reinterpret_cast<const TagDecl *>(D), QualType()) {}
   explicit RecordType(TypeClass TC, RecordDecl *D)
-      : TagType(TC, reinterpret_cast<const TagDecl*>(D), QualType()) {}
+      : TagType(TC, reinterpret_cast<const TagDecl *>(D), QualType()) {}
 
 public:
   RecordDecl *getDecl() const {
-    return reinterpret_cast<RecordDecl*>(TagType::getDecl());
+    return reinterpret_cast<RecordDecl *>(TagType::getDecl());
   }
 
   /// Recursively check all fields in the record for const-ness. If any field
@@ -5963,11 +5921,11 @@ class EnumType : public TagType {
   friend class ASTContext; // ASTContext creates these.
 
   explicit EnumType(const EnumDecl *D)
-      : TagType(Enum, reinterpret_cast<const TagDecl*>(D), QualType()) {}
+      : TagType(Enum, reinterpret_cast<const TagDecl *>(D), QualType()) {}
 
 public:
   EnumDecl *getDecl() const {
-    return reinterpret_cast<EnumDecl*>(TagType::getDecl());
+    return reinterpret_cast<EnumDecl *>(TagType::getDecl());
   }
 
   bool isSugared() const { return false; }
@@ -6082,9 +6040,7 @@ public:
     ID.AddPointer(equivalent.getAsOpaquePtr());
   }
 
-  static bool classof(const Type *T) {
-    return T->getTypeClass() == Attributed;
-  }
+  static bool classof(const Type *T) { return T->getTypeClass() == Attributed; }
 };
 
 class BTFTagAttributedType : public Type, public llvm::FoldingSetNode {
@@ -6156,7 +6112,7 @@ class TemplateTypeParmType : public Type, public llvm::FoldingSetNode {
     CanTTPTInfo.ParameterPack = PP;
   }
 
-  const CanonicalTTPTInfo& getCanTTPTInfo() const {
+  const CanonicalTTPTInfo &getCanTTPTInfo() const {
     QualType Can = getCanonicalTypeInternal();
     return Can->castAs<TemplateTypeParmType>()->CanTTPTInfo;
   }
@@ -6384,9 +6340,7 @@ public:
     return TypeConstraintConcept;
   }
 
-  bool isConstrained() const {
-    return TypeConstraintConcept != nullptr;
-  }
+  bool isConstrained() const { return TypeConstraintConcept != nullptr; }
 
   bool isDecltypeAuto() const {
     return getKeyword() == AutoTypeKeyword::DecltypeAuto;
@@ -6406,9 +6360,7 @@ public:
                       bool IsDependent, ConceptDecl *CD,
                       ArrayRef<TemplateArgument> Arguments);
 
-  static bool classof(const Type *T) {
-    return T->getTypeClass() == Auto;
-  }
+  static bool classof(const Type *T) { return T->getTypeClass() == Auto; }
 };
 
 /// Represents a C++17 deduced template specialization type.
@@ -6433,7 +6385,7 @@ class DeducedTemplateSpecializationType : public DeducedType,
 
 public:
   /// Retrieve the name of the template that we are deducing.
-  TemplateName getTemplateName() const { return Template;}
+  TemplateName getTemplateName() const { return Template; }
 
   void Profile(llvm::FoldingSetNodeID &ID) {
     Profile(ID, getTemplateName(), getDeducedType(), isDependentType());
@@ -6485,10 +6437,8 @@ class TemplateSpecializationType : public Type, public llvm::FoldingSetNode {
   /// replacement must, recursively, be one of these).
   TemplateName Template;
 
-  TemplateSpecializationType(TemplateName T,
-                             ArrayRef<TemplateArgument> Args,
-                             QualType Canon,
-                             QualType Aliased);
+  TemplateSpecializationType(TemplateName T, ArrayRef<TemplateArgument> Args,
+                             QualType Canon, QualType Aliased);
 
 public:
   /// Determine whether any of the given template arguments are dependent.
@@ -6566,8 +6516,7 @@ public:
 
 /// Print a template argument list, including the '<' and '>'
 /// enclosing the template arguments.
-void printTemplateArgumentList(raw_ostream &OS,
-                               ArrayRef<TemplateArgument> Args,
+void printTemplateArgumentList(raw_ostream &OS, ArrayRef<TemplateArgument> Args,
                                const PrintingPolicy &Policy,
                                const TemplateParameterList *TPL = nullptr);
 
@@ -6861,9 +6810,7 @@ public:
   /// This routine will return a non-NULL identifier pointer when the
   /// form of the original typename was terminated by an identifier,
   /// e.g., "typename T::type".
-  const IdentifierInfo *getIdentifier() const {
-    return Name;
-  }
+  const IdentifierInfo *getIdentifier() const { return Name; }
 
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
@@ -6919,8 +6866,7 @@ public:
     Profile(ID, Context, getKeyword(), NNS, Name, template_arguments());
   }
 
-  static void Profile(llvm::FoldingSetNodeID &ID,
-                      const ASTContext &Context,
+  static void Profile(llvm::FoldingSetNodeID &ID, const ASTContext &Context,
                       ElaboratedTypeKeyword Keyword,
                       NestedNameSpecifier *Qualifier,
                       const IdentifierInfo *Name,
@@ -7006,21 +6952,20 @@ public:
 
 /// This class wraps the list of protocol qualifiers. For types that can
 /// take ObjC protocol qualifers, they can subclass this class.
-template <class T>
-class ObjCProtocolQualifiers {
+template <class T> class ObjCProtocolQualifiers {
 protected:
   ObjCProtocolQualifiers() = default;
 
-  ObjCProtocolDecl * const *getProtocolStorage() const {
-    return const_cast<ObjCProtocolQualifiers*>(this)->getProtocolStorage();
+  ObjCProtocolDecl *const *getProtocolStorage() const {
+    return const_cast<ObjCProtocolQualifiers *>(this)->getProtocolStorage();
   }
 
   ObjCProtocolDecl **getProtocolStorage() {
-    return static_cast<T*>(this)->getProtocolStorageImpl();
+    return static_cast<T *>(this)->getProtocolStorageImpl();
   }
 
   void setNumProtocols(unsigned N) {
-    static_cast<T*>(this)->setNumProtocolsImpl(N);
+    static_cast<T *>(this)->setNumProtocolsImpl(N);
   }
 
   void initialize(ArrayRef<ObjCProtocolDecl *> protocols) {
@@ -7029,11 +6974,11 @@ protected:
            "bitfield overflow in protocol count");
     if (!protocols.empty())
       memcpy(getProtocolStorage(), protocols.data(),
-             protocols.size() * sizeof(ObjCProtocolDecl*));
+             protocols.size() * sizeof(ObjCProtocolDecl *));
   }
 
 public:
-  using qual_iterator = ObjCProtocolDecl * const *;
+  using qual_iterator = ObjCProtocolDecl *const *;
   using qual_range = llvm::iterator_range<qual_iterator>;
 
   qual_range quals() const { return qual_range(qual_begin(), qual_end()); }
@@ -7045,7 +6990,7 @@ public:
   /// Return the number of qualifying protocols in this type, or 0 if
   /// there are none.
   unsigned getNumProtocols() const {
-    return static_cast<const T*>(this)->getNumProtocolsImpl();
+    return static_cast<const T *>(this)->getNumProtocolsImpl();
   }
 
   /// Fetch a protocol by index.
@@ -7080,16 +7025,11 @@ class ObjCTypeParamType : public Type,
 
   /// Return the number of qualifying protocols in this interface type,
   /// or 0 if there are none.
-  unsigned getNumProtocolsImpl() const {
-    return NumProtocols;
-  }
+  unsigned getNumProtocolsImpl() const { return NumProtocols; }
 
-  void setNumProtocolsImpl(unsigned N) {
-    NumProtocols = N;
-  }
+  void setNumProtocolsImpl(unsigned N) { NumProtocols = N; }
 
-  ObjCTypeParamType(const ObjCTypeParamDecl *D,
-                    QualType can,
+  ObjCTypeParamType(const ObjCTypeParamDecl *D, QualType can,
                     ArrayRef<ObjCProtocolDecl *> protocols);
 
 public:
@@ -7102,8 +7042,7 @@ public:
 
   void Profile(llvm::FoldingSetNodeID &ID);
   static void Profile(llvm::FoldingSetNodeID &ID,
-                      const ObjCTypeParamDecl *OTPDecl,
-                      QualType CanonicalType,
+                      const ObjCTypeParamDecl *OTPDecl, QualType CanonicalType,
                       ArrayRef<ObjCProtocolDecl *> protocols);
 
   ObjCTypeParamDecl *getDecl() const { return OTPDecl; }
@@ -7158,7 +7097,7 @@ class ObjCObjectType : public Type,
 
   /// Cached superclass type.
   mutable llvm::PointerIntPair<const ObjCObjectType *, 1, bool>
-    CachedSuperClassType;
+      CachedSuperClassType;
 
   QualType *getTypeArgStorage();
   const QualType *getTypeArgStorage() const {
@@ -7171,17 +7110,13 @@ class ObjCObjectType : public Type,
   unsigned getNumProtocolsImpl() const {
     return ObjCObjectTypeBits.NumProtocols;
   }
-  void setNumProtocolsImpl(unsigned N) {
-    ObjCObjectTypeBits.NumProtocols = N;
-  }
+  void setNumProtocolsImpl(unsigned N) { ObjCObjectTypeBits.NumProtocols = N; }
 
 protected:
   enum Nonce_ObjCInterface { Nonce_ObjCInterface };
 
-  ObjCObjectType(QualType Canonical, QualType Base,
-                 ArrayRef<QualType> typeArgs,
-                 ArrayRef<ObjCProtocolDecl *> protocols,
-                 bool isKindOf);
+  ObjCObjectType(QualType Canonical, QualType Base, ArrayRef<QualType> typeArgs,
+                 ArrayRef<ObjCProtocolDecl *> protocols, bool isKindOf);
 
   ObjCObjectType(enum Nonce_ObjCInterface)
       : Type(ObjCInterface, QualType(), TypeDependence::None),
@@ -7213,7 +7148,8 @@ public:
   bool isObjCUnqualifiedId() const { return qual_empty() && isObjCId(); }
   bool isObjCUnqualifiedClass() const { return qual_empty() && isObjCClass(); }
   bool isObjCUnqualifiedIdOrClass() const {
-    if (!qual_empty()) return false;
+    if (!qual_empty())
+      return false;
     if (const BuiltinType *T = getBaseType()->getAs<BuiltinType>())
       return T->getKind() == BuiltinType::ObjCId ||
              T->getKind() == BuiltinType::ObjCClass;
@@ -7297,31 +7233,29 @@ class ObjCObjectTypeImpl : public ObjCObjectType, public llvm::FoldingSetNode {
 
   ObjCObjectTypeImpl(QualType Canonical, QualType Base,
                      ArrayRef<QualType> typeArgs,
-                     ArrayRef<ObjCProtocolDecl *> protocols,
-                     bool isKindOf)
+                     ArrayRef<ObjCProtocolDecl *> protocols, bool isKindOf)
       : ObjCObjectType(Canonical, Base, typeArgs, protocols, isKindOf) {}
 
 public:
   void Profile(llvm::FoldingSetNodeID &ID);
-  static void Profile(llvm::FoldingSetNodeID &ID,
-                      QualType Base,
+  static void Profile(llvm::FoldingSetNodeID &ID, QualType Base,
                       ArrayRef<QualType> typeArgs,
-                      ArrayRef<ObjCProtocolDecl *> protocols,
-                      bool isKindOf);
+                      ArrayRef<ObjCProtocolDecl *> protocols, bool isKindOf);
 };
 
 inline QualType *ObjCObjectType::getTypeArgStorage() {
-  return reinterpret_cast<QualType *>(static_cast<ObjCObjectTypeImpl*>(this)+1);
+  return reinterpret_cast<QualType *>(static_cast<ObjCObjectTypeImpl *>(this) +
+                                      1);
 }
 
 inline ObjCProtocolDecl **ObjCObjectType::getProtocolStorageImpl() {
-    return reinterpret_cast<ObjCProtocolDecl**>(
-             getTypeArgStorage() + ObjCObjectTypeBits.NumTypeArgs);
+  return reinterpret_cast<ObjCProtocolDecl **>(getTypeArgStorage() +
+                                               ObjCObjectTypeBits.NumTypeArgs);
 }
 
 inline ObjCProtocolDecl **ObjCTypeParamType::getProtocolStorageImpl() {
-    return reinterpret_cast<ObjCProtocolDecl**>(
-             static_cast<ObjCTypeParamType*>(this)+1);
+  return reinterpret_cast<ObjCProtocolDecl **>(
+      static_cast<ObjCTypeParamType *>(this) + 1);
 }
 
 /// Interfaces are the core concept in Objective-C for object oriented design.
@@ -7345,7 +7279,7 @@ class ObjCInterfaceType : public ObjCObjectType {
 
   ObjCInterfaceType(const ObjCInterfaceDecl *D)
       : ObjCObjectType(Nonce_ObjCInterface),
-        Decl(const_cast<ObjCInterfaceDecl*>(D)) {}
+        Decl(const_cast<ObjCInterfaceDecl *>(D)) {}
 
 public:
   /// Get the declaration of this interface.
@@ -7362,13 +7296,7 @@ public:
   // class.  People asking for protocols on an ObjCInterfaceType are
   // not going to get what they want: ObjCInterfaceTypes are
   // guaranteed to have no protocols.
-  enum {
-    qual_iterator,
-    qual_begin,
-    qual_end,
-    getNumProtocols,
-    getProtocol
-  };
+  enum { qual_iterator, qual_begin, qual_end, getNumProtocols, getProtocol };
 };
 
 inline ObjCInterfaceDecl *ObjCObjectType::getInterface() const {
@@ -7450,9 +7378,7 @@ public:
 
   /// True if this is equivalent to the 'id' type, i.e. if
   /// its object type is the primitive 'id' type with no protocols.
-  bool isObjCIdType() const {
-    return getObjectType()->isObjCUnqualifiedId();
-  }
+  bool isObjCIdType() const { return getObjectType()->isObjCUnqualifiedId(); }
 
   /// True if this is equivalent to the 'Class' type,
   /// i.e. if its object tive is the primitive 'Class' type with no protocols.
@@ -7513,13 +7439,9 @@ public:
 
   qual_range quals() const { return qual_range(qual_begin(), qual_end()); }
 
-  qual_iterator qual_begin() const {
-    return getObjectType()->qual_begin();
-  }
+  qual_iterator qual_begin() const { return getObjectType()->qual_begin(); }
 
-  qual_iterator qual_end() const {
-    return getObjectType()->qual_end();
-  }
+  qual_iterator qual_end() const { return getObjectType()->qual_end(); }
 
   bool qual_empty() const { return getObjectType()->qual_empty(); }
 
@@ -7546,12 +7468,10 @@ public:
 
   /// Strip off the Objective-C "kindof" type and (with it) any
   /// protocol qualifiers.
-  const ObjCObjectPointerType *stripObjCKindOfTypeAndQuals(
-                                 const ASTContext &ctx) const;
+  const ObjCObjectPointerType *
+  stripObjCKindOfTypeAndQuals(const ASTContext &ctx) const;
 
-  void Profile(llvm::FoldingSetNodeID &ID) {
-    Profile(ID, getPointeeType());
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) { Profile(ID, getPointeeType()); }
 
   static void Profile(llvm::FoldingSetNodeID &ID, QualType T) {
     ID.AddPointer(T.getAsOpaquePtr());
@@ -7578,17 +7498,13 @@ public:
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
 
-  void Profile(llvm::FoldingSetNodeID &ID) {
-    Profile(ID, getValueType());
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) { Profile(ID, getValueType()); }
 
   static void Profile(llvm::FoldingSetNodeID &ID, QualType T) {
     ID.AddPointer(T.getAsOpaquePtr());
   }
 
-  static bool classof(const Type *T) {
-    return T->getTypeClass() == Atomic;
-  }
+  static bool classof(const Type *T) { return T->getTypeClass() == Atomic; }
 };
 
 /// PipeType - OpenCL20.
@@ -7618,9 +7534,7 @@ public:
     ID.AddBoolean(isRead);
   }
 
-  static bool classof(const Type *T) {
-    return T->getTypeClass() == Pipe;
-  }
+  static bool classof(const Type *T) { return T->getTypeClass() == Pipe; }
 
   bool isReadOnly() const { return isRead; }
 };
@@ -7658,7 +7572,7 @@ public:
 
 class DependentBitIntType final : public Type, public llvm::FoldingSetNode {
   friend class ASTContext;
-  llvm::PointerIntPair<Expr*, 1, bool> ExprAndUnsigned;
+  llvm::PointerIntPair<Expr *, 1, bool> ExprAndUnsigned;
 
 protected:
   DependentBitIntType(bool IsUnsigned, Expr *NumBits);
@@ -7704,7 +7618,7 @@ public:
   QualType apply(const ASTContext &Context, QualType QT) const;
 
   /// Apply the collected qualifiers to the given type.
-  QualType apply(const ASTContext &Context, const Type* T) const;
+  QualType apply(const ASTContext &Context, const Type *T) const;
 };
 
 /// A container of type source information.
@@ -7738,7 +7652,7 @@ public:
 
 inline SplitQualType SplitQualType::getSingleStepDesugaredType() const {
   SplitQualType desugar =
-    Ty->getLocallyUnqualifiedSingleStepDesugaredType().split();
+      Ty->getLocallyUnqualifiedSingleStepDesugaredType().split();
   desugar.Quals.addConsistentQualifiers(Quals);
   return desugar;
 }
@@ -7805,8 +7719,10 @@ inline bool QualType::isCanonical() const {
 }
 
 inline bool QualType::isCanonicalAsParam() const {
-  if (!isCanonical()) return false;
-  if (hasLocalQualifiers()) return false;
+  if (!isCanonical())
+    return false;
+  if (hasLocalQualifiers())
+    return false;
 
   const Type *T = getTypePtr();
   if (T->isVariablyModifiedType() && T->hasSizedVLAType())
@@ -7825,7 +7741,6 @@ inline bool QualType::isRestrictQualified() const {
   return isLocalRestrictQualified() ||
          getCommonPtr()->CanonicalType.isLocalRestrictQualified();
 }
-
 
 inline bool QualType::isVolatileQualified() const {
   return isLocalVolatileQualified() ||
@@ -7960,8 +7875,7 @@ inline bool QualType::isCForbiddenLValueType() const {
 ///
 /// \returns True for types specified in C++0x [basic.fundamental].
 inline bool Type::isFundamentalType() const {
-  return isVoidType() ||
-         isNullPtrType() ||
+  return isVoidType() || isNullPtrType() ||
          // FIXME: It's really annoying that we don't have an
          // 'isArithmeticType()' which agrees with the standard definition.
          (isArithmeticType() && !isEnumeralType());
@@ -7975,20 +7889,23 @@ inline bool Type::isCompoundType() const {
   //   Compound types can be constructed in the following ways:
   //    -- arrays of objects of a given type [...];
   return isArrayType() ||
-  //    -- functions, which have parameters of given types [...];
+         //    -- functions, which have parameters of given types [...];
          isFunctionType() ||
-  //    -- pointers to void or objects or functions [...];
+         //    -- pointers to void or objects or functions [...];
          isPointerType() ||
-  //    -- references to objects or functions of a given type. [...]
+         //    -- references to objects or functions of a given type. [...]
          isReferenceType() ||
-  //    -- classes containing a sequence of objects of various types, [...];
+         //    -- classes containing a sequence of objects of various types,
+         //    [...];
          isRecordType() ||
-  //    -- unions, which are classes capable of containing objects of different
-  //               types at different times;
+         //    -- unions, which are classes capable of containing objects of
+         //    different
+         //               types at different times;
          isUnionType() ||
-  //    -- enumerations, which comprise a set of named constant values. [...];
+         //    -- enumerations, which comprise a set of named constant values.
+         //    [...];
          isEnumeralType() ||
-  //    -- pointers to non-static class members, [...].
+         //    -- pointers to non-static class members, [...].
          isMemberPointerType();
 }
 
@@ -8064,9 +7981,7 @@ inline bool Type::isMemberDataPointerType() const {
     return false;
 }
 
-inline bool Type::isArrayType() const {
-  return isa<ArrayType>(CanonicalType);
-}
+inline bool Type::isArrayType() const { return isa<ArrayType>(CanonicalType); }
 
 inline bool Type::isConstantArrayType() const {
   return isa<ConstantArrayType>(CanonicalType);
@@ -8144,7 +8059,7 @@ inline bool Type::isObjCObjectType() const {
 
 inline bool Type::isObjCObjectOrInterfaceType() const {
   return isa<ObjCInterfaceType>(CanonicalType) ||
-    isa<ObjCObjectType>(CanonicalType);
+         isa<ObjCObjectType>(CanonicalType);
 }
 
 inline bool Type::isAtomicType() const {
@@ -8189,13 +8104,11 @@ inline bool Type::isObjCBuiltinType() const {
   return isObjCIdType() || isObjCClassType() || isObjCSelType();
 }
 
-inline bool Type::isDecltypeType() const {
-  return isa<DecltypeType>(this);
-}
+inline bool Type::isDecltypeType() const { return isa<DecltypeType>(this); }
 
-#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
-  inline bool Type::is##Id##Type() const { \
-    return isSpecificBuiltinType(BuiltinType::Id); \
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix)                   \
+  inline bool Type::is##Id##Type() const {                                     \
+    return isSpecificBuiltinType(BuiltinType::Id);                             \
   }
 #include "clang/Basic/OpenCLImageTypes.def"
 
@@ -8226,33 +8139,31 @@ inline bool Type::isImageType() const {
       false; // end boolean or operation
 }
 
-inline bool Type::isPipeType() const {
-  return isa<PipeType>(CanonicalType);
-}
+inline bool Type::isPipeType() const { return isa<PipeType>(CanonicalType); }
 
 inline bool Type::isBitIntType() const {
   return isa<BitIntType>(CanonicalType);
 }
 
-#define EXT_OPAQUE_TYPE(ExtType, Id, Ext) \
-  inline bool Type::is##Id##Type() const { \
-    return isSpecificBuiltinType(BuiltinType::Id); \
+#define EXT_OPAQUE_TYPE(ExtType, Id, Ext)                                      \
+  inline bool Type::is##Id##Type() const {                                     \
+    return isSpecificBuiltinType(BuiltinType::Id);                             \
   }
 #include "clang/Basic/OpenCLExtensionTypes.def"
 
 inline bool Type::isOCLIntelSubgroupAVCType() const {
-#define INTEL_SUBGROUP_AVC_TYPE(ExtType, Id) \
+#define INTEL_SUBGROUP_AVC_TYPE(ExtType, Id)                                   \
   isOCLIntelSubgroupAVC##Id##Type() ||
   return
 #include "clang/Basic/OpenCLExtensionTypes.def"
-    false; // end of boolean or operation
+      false; // end of boolean or operation
 }
 
 inline bool Type::isOCLExtOpaqueType() const {
 #define EXT_OPAQUE_TYPE(ExtType, Id, Ext) is##Id##Type() ||
   return
 #include "clang/Basic/OpenCLExtensionTypes.def"
-    false; // end of boolean or operation
+      false; // end of boolean or operation
 }
 
 inline bool Type::isOpenCLSpecificType() const {
@@ -8285,7 +8196,7 @@ inline const BuiltinType *Type::getAsPlaceholderType() const {
 }
 
 inline bool Type::isSpecificPlaceholderType(unsigned K) const {
-  assert(BuiltinType::isPlaceholderTypeKind((BuiltinType::Kind) K));
+  assert(BuiltinType::isPlaceholderTypeKind((BuiltinType::Kind)K));
   return isSpecificBuiltinType(K);
 }
 
@@ -8343,7 +8254,7 @@ inline bool Type::isIntegerType() const {
     // Incomplete enum types are not treated as integer types.
     // FIXME: In C++, enum types are never integer types.
     return IsEnumDeclComplete(ET->getDecl()) &&
-      !IsEnumDeclScoped(ET->getDecl());
+           !IsEnumDeclScoped(ET->getDecl());
   }
   return isBitIntType();
 }
@@ -8406,8 +8317,7 @@ inline bool Type::isScalarType() const {
          isa<BlockPointerType>(CanonicalType) ||
          isa<MemberPointerType>(CanonicalType) ||
          isa<ComplexType>(CanonicalType) ||
-         isa<ObjCObjectPointerType>(CanonicalType) ||
-         isBitIntType();
+         isa<ObjCObjectPointerType>(CanonicalType) || isBitIntType();
 }
 
 inline bool Type::isIntegralOrEnumerationType() const {
@@ -8533,8 +8443,26 @@ template <typename T> const T *Type::getAs() const {
   return cast<T>(getUnqualifiedDesugaredType());
 }
 
+template <typename T> T *Type::getAs() {
+  static_assert(!TypeIsArrayType<T>::value,
+                "ArrayType cannot be used with getAs!");
+
+  // If this is directly a T type, return it.
+  if (auto *Ty = dyn_cast<T>(this))
+    return Ty;
+
+  // If the canonical form of this type isn't the right kind, reject it.
+  if (!isa<T>(CanonicalType))
+    return nullptr;
+
+  // If this is a typedef for the type, strip the typedef off without
+  // losing all typedef information.
+  return cast<T>(getUnqualifiedDesugaredType());
+}
+
 template <typename T> const T *Type::getAsAdjusted() const {
-  static_assert(!TypeIsArrayType<T>::value, "ArrayType cannot be used with getAsAdjusted!");
+  static_assert(!TypeIsArrayType<T>::value,
+                "ArrayType cannot be used with getAsAdjusted!");
 
   // If this is directly a T type, return it.
   if (const auto *Ty = dyn_cast<T>(this))
@@ -8587,14 +8515,26 @@ template <typename T> const T *Type::castAs() const {
   static_assert(!TypeIsArrayType<T>::value,
                 "ArrayType cannot be used with castAs!");
 
-  if (const auto *ty = dyn_cast<T>(this)) return ty;
+  if (const auto *ty = dyn_cast<T>(this))
+    return ty;
+  assert(isa<T>(CanonicalType));
+  return cast<T>(getUnqualifiedDesugaredType());
+}
+
+template <typename T> T *Type::castAs() {
+  static_assert(!TypeIsArrayType<T>::value,
+                "ArrayType cannot be used with castAs!");
+
+  if (const auto *ty = dyn_cast<T>(this))
+    return ty;
   assert(isa<T>(CanonicalType));
   return cast<T>(getUnqualifiedDesugaredType());
 }
 
 inline const ArrayType *Type::castAsArrayTypeUnsafe() const {
   assert(isa<ArrayType>(CanonicalType));
-  if (const auto *arr = dyn_cast<ArrayType>(this)) return arr;
+  if (const auto *arr = dyn_cast<ArrayType>(this))
+    return arr;
   return cast<ArrayType>(getUnqualifiedDesugaredType());
 }
 

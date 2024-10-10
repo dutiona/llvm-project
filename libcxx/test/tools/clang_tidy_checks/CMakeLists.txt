@@ -100,15 +100,15 @@ set(SOURCES
     libcpp_module.cpp
    )
 
-add_library(cxx-tidy MODULE ${SOURCES})
-target_link_libraries(cxx-tidy clangTidy)
-
-set_target_properties(cxx-tidy PROPERTIES
-                      CXX_STANDARD 20
-                      CXX_STANDARD_REQUIRED YES
-                      CXX_EXTENSIONS NO)
-
-set_target_properties(cxx-tidy PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-set(CMAKE_SHARED_MODULE_SUFFIX_CXX .plugin) # Use a portable suffix to simplify how we can find it from Lit
-
-add_dependencies(cxx-test-depends cxx-tidy)
+#add_library(cxx-tidy MODULE ${SOURCES})
+#target_link_libraries(cxx-tidy clangTidy)
+#
+#set_target_properties(cxx-tidy PROPERTIES
+#                      CXX_STANDARD 20
+#                      CXX_STANDARD_REQUIRED YES
+#                      CXX_EXTENSIONS NO)
+#
+#set_target_properties(cxx-tidy PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+#set(CMAKE_SHARED_MODULE_SUFFIX_CXX .plugin) # Use a portable suffix to simplify how we can find it from Lit
+#
+#add_dependencies(cxx-test-depends cxx-tidy)

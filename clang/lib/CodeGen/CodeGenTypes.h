@@ -25,7 +25,7 @@ class DataLayout;
 class Type;
 class LLVMContext;
 class StructType;
-}
+} // namespace llvm
 
 namespace clang {
 class ASTContext;
@@ -67,18 +67,18 @@ class CodeGenTypes {
   /// manipulation is done by the runtime interfaces, which are
   /// responsible for coercing to the appropriate type; these opaque
   /// types are never refined.
-  llvm::DenseMap<const ObjCInterfaceType*, llvm::Type *> InterfaceTypes;
+  llvm::DenseMap<const ObjCInterfaceType *, llvm::Type *> InterfaceTypes;
 
   /// Maps clang struct type with corresponding record layout info.
-  llvm::DenseMap<const Type*, std::unique_ptr<CGRecordLayout>> CGRecordLayouts;
+  llvm::DenseMap<const Type *, std::unique_ptr<CGRecordLayout>> CGRecordLayouts;
 
   /// Contains the LLVM IR type for any converted RecordDecl.
-  llvm::DenseMap<const Type*, llvm::StructType *> RecordDeclTypes;
+  llvm::DenseMap<const Type *, llvm::StructType *> RecordDeclTypes;
 
   /// Hold memoized CGFunctionInfo results.
   llvm::FoldingSet<CGFunctionInfo> FunctionInfos{FunctionInfosLog2InitSize};
 
-  llvm::SmallPtrSet<const CGFunctionInfo*, 4> FunctionsBeingProcessed;
+  llvm::SmallPtrSet<const CGFunctionInfo *, 4> FunctionsBeingProcessed;
 
   /// True if we didn't layout a function due to a being inside
   /// a recursive struct conversion, set this to true.
@@ -172,7 +172,7 @@ public:
   /// and/or incomplete argument types, this will return the opaque type.
   llvm::Type *GetFunctionTypeForVTable(GlobalDecl GD);
 
-  const CGRecordLayout &getCGRecordLayout(const RecordDecl*);
+  const CGRecordLayout &getCGRecordLayout(const RecordDecl *);
 
   /// UpdateCompletedType - When we find the full definition for a TagDecl,
   /// replace the 'opaque' type we previously made for it if applicable.
@@ -218,7 +218,8 @@ public:
                                                 const FunctionType *Ty,
                                                 bool ChainCall);
   const CGFunctionInfo &arrangeFreeFunctionType(CanQual<FunctionProtoType> Ty);
-  const CGFunctionInfo &arrangeFreeFunctionType(CanQual<FunctionNoProtoType> Ty);
+  const CGFunctionInfo &
+  arrangeFreeFunctionType(CanQual<FunctionNoProtoType> Ty);
 
   /// A nullary function is a freestanding function of type 'void ()'.
   /// This method works for both calls and declarations.
@@ -237,16 +238,17 @@ public:
 
   /// Objective-C methods are C functions with some implicit parameters.
   const CGFunctionInfo &arrangeObjCMethodDeclaration(const ObjCMethodDecl *MD);
-  const CGFunctionInfo &arrangeObjCMessageSendSignature(const ObjCMethodDecl *MD,
-                                                        QualType receiverType);
-  const CGFunctionInfo &arrangeUnprototypedObjCMessageSend(
-                                                     QualType returnType,
-                                                     const CallArgList &args);
+  const CGFunctionInfo &
+  arrangeObjCMessageSendSignature(const ObjCMethodDecl *MD,
+                                  QualType receiverType);
+  const CGFunctionInfo &
+  arrangeUnprototypedObjCMessageSend(QualType returnType,
+                                     const CallArgList &args);
 
   /// Block invocation functions are C functions with an implicit parameter.
-  const CGFunctionInfo &arrangeBlockFunctionDeclaration(
-                                                 const FunctionProtoType *type,
-                                                 const FunctionArgList &args);
+  const CGFunctionInfo &
+  arrangeBlockFunctionDeclaration(const FunctionProtoType *type,
+                                  const FunctionArgList &args);
   const CGFunctionInfo &arrangeBlockFunctionCall(const CallArgList &args,
                                                  const FunctionType *type);
 
@@ -267,7 +269,7 @@ public:
   const CGFunctionInfo &
   arrangeUnprototypedMustTailThunk(const CXXMethodDecl *MD);
   const CGFunctionInfo &arrangeMSCtorClosure(const CXXConstructorDecl *CD,
-                                                 CXXCtorType CT);
+                                             CXXCtorType CT);
   const CGFunctionInfo &arrangeCXXMethodType(const CXXRecordDecl *RD,
                                              const FunctionProtoType *FTP,
                                              const CXXMethodDecl *MD);
@@ -293,8 +295,7 @@ public:
   void addRecordTypeName(const RecordDecl *RD, llvm::StructType *Ty,
                          StringRef suffix);
 
-
-public:  // These are internal details of CGT that shouldn't be used externally.
+public: // These are internal details of CGT that shouldn't be used externally.
   /// ConvertRecordDeclType - Lay out a tagged decl type like struct or union.
   llvm::StructType *ConvertRecordDeclType(const RecordDecl *TD);
 
@@ -320,7 +321,7 @@ public:  // These are internal details of CGT that shouldn't be used externally.
   unsigned getTargetAddressSpace(QualType T) const;
 };
 
-}  // end namespace CodeGen
-}  // end namespace clang
+} // end namespace CodeGen
+} // end namespace clang
 
 #endif

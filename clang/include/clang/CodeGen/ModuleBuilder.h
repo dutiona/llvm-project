@@ -16,35 +16,44 @@
 #include "clang/AST/ASTConsumer.h"
 #include "clang/Basic/LLVM.h"
 #include "llvm/ADT/StringRef.h"
+#include <clang/CodeGen/CGFunctionInfo.h>
+#include <llvm/IR/Type.h>
 
 namespace llvm {
-  class Constant;
-  class LLVMContext;
-  class Module;
-  class StringRef;
+class Constant;
+class LLVMContext;
+class Module;
+class StringRef;
 
-  namespace vfs {
-  class FileSystem;
-  }
+namespace vfs {
+class FileSystem;
 }
+} // namespace llvm
 
 // Prefix of the name of the artificial inline frame.
 inline constexpr llvm::StringRef ClangTrapPrefix = "__clang_trap_msg";
 
 namespace clang {
-  class CodeGenOptions;
-  class CoverageSourceInfo;
-  class Decl;
-  class DiagnosticsEngine;
-  class GlobalDecl;
-  class HeaderSearchOptions;
-  class LangOptions;
-  class PreprocessorOptions;
+class CodeGenOptions;
+class CoverageSourceInfo;
+class Decl;
+class DiagnosticsEngine;
+class GlobalDecl;
+class HeaderSearchOptions;
+class LangOptions;
+class PreprocessorOptions;
 
 namespace CodeGen {
-  class CodeGenModule;
-  class CGDebugInfo;
-}
+class CodeGenModule;
+class CGDebugInfo;
+
+llvm::Constant *
+GetAddrOfFunction(CodeGenModule *CodeGenerator, GlobalDecl GD,
+                  llvm::Type *Ty = nullptr, bool ForVTable = false,
+                  bool DontDefer = false,
+                  ForDefinition_t IsForDefinition = NotForDefinition);
+
+} // namespace CodeGen
 
 /// The primary public interface to the Clang code generator.
 ///
@@ -99,7 +108,7 @@ public:
 
   /// Create a new \c llvm::Module after calling HandleTranslationUnit. This
   /// enable codegen in interactive processing environments.
-  llvm::Module* StartModule(llvm::StringRef ModuleName, llvm::LLVMContext &C);
+  llvm::Module *StartModule(llvm::StringRef ModuleName, llvm::LLVMContext &C);
 };
 
 /// CreateLLVMCodeGen - Create a CodeGenerator instance.

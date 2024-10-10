@@ -35,7 +35,7 @@ class Constant;
 class Function;
 class FunctionType;
 class Type;
-}
+} // namespace llvm
 
 namespace clang {
 class CXXConstructorDecl;
@@ -102,8 +102,8 @@ llvm::Type *convertTypeForMemory(CodeGenModule &CGM, QualType T);
 /// the struct's converted type.  The returned index refers to a field number in
 /// the complete object type which is returned by convertTypeForMemory.  FD must
 /// be a field in RD directly (i.e. not an inherited field).
-unsigned getLLVMFieldNumber(CodeGenModule &CGM,
-                            const RecordDecl *RD, const FieldDecl *FD);
+unsigned getLLVMFieldNumber(CodeGenModule &CGM, const RecordDecl *RD,
+                            const FieldDecl *FD);
 
 /// Return a declaration discriminator for the given global decl.
 uint16_t getPointerAuthDeclDiscriminator(CodeGenModule &CGM, GlobalDecl GD);
@@ -191,7 +191,7 @@ llvm::Function *getNonTrivialCStructDestructor(CodeGenModule &CGM,
 /// object.
 llvm::Constant *emitObjCProtocolObject(CodeGenModule &CGM,
                                        const ObjCProtocolDecl *p);
-}  // end namespace CodeGen
-}  // end namespace clang
+} // end namespace CodeGen
+} // end namespace clang
 
 #endif

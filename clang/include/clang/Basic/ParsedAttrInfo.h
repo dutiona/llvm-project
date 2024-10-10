@@ -15,6 +15,8 @@
 #ifndef LLVM_CLANG_BASIC_PARSEDATTRINFO_H
 #define LLVM_CLANG_BASIC_PARSEDATTRINFO_H
 
+#include "clang/AST/Attr.h"
+#include "clang/AST/Stmt.h"
 #include "clang/Basic/AttrSubjectMatchRules.h"
 #include "clang/Basic/AttributeCommonInfo.h"
 #include "llvm/ADT/ArrayRef.h"
